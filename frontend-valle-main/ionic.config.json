@@ -1,0 +1,7 @@
+{
+  "name": "valle-del-sol",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
