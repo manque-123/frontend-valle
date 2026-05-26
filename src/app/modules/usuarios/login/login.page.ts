@@ -5,8 +5,6 @@ import { IonicModule } from '@ionic/angular';
 import { Router } from '@angular/router'; 
 import { EmergenciaService } from '../../../services/emergencia.service';
 
-// ... imports arriba ...
-
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
@@ -14,8 +12,8 @@ import { EmergenciaService } from '../../../services/emergencia.service';
   standalone: true,
   imports: [IonicModule, CommonModule, FormsModule]
 })
-export class LoginPage implements OnInit { // <-- Verifica que diga EXACTAMENTE 'LoginPage'
-// ... resto del código ...
+export class LoginPage implements OnInit {
+
   usuario: string = "";
   contrasena: string = "";
 
@@ -32,9 +30,17 @@ export class LoginPage implements OnInit { // <-- Verifica que diga EXACTAMENTE 
     // Si el usuario es genesis, entra directo.
     if (this.usuario.toLowerCase() === 'genesis') {
       alert("¡Acceso Correcto! Bienvenida al sistema.");
+      
+      // Guardamos el nombre para que el Home lo lea
+      localStorage.setItem('usuarioLogueado', this.usuario);
+      
       this.router.navigate(['/home']); // Te lleva a la pantalla principal
     } else {
       alert("Para la prueba usa el usuario: genesis");
     }
+  }
+
+  irARegistro() {
+    this.router.navigate(['/registro']);
   }
 }

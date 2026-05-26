@@ -1,0 +1,26 @@
+<ion-header>
+  <ion-toolbar color="success">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Crear Cuenta</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <h2 style="text-align: center;">Únete al Sistema</h2>
+
+  <ion-item>
+    <ion-label position="floating">Nombre de Usuario</ion-label>
+    <ion-input [(ngModel)]="nuevoUsuario" type="text"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="floating">Contraseña</ion-label>
+    <ion-input [(ngModel)]="nuevaContrasena" type="password"></ion-input>
+  </ion-item>
+
+  <ion-button expand="block" color="success" class="ion-margin-top" (click)="registrar()">
+    CREAR CUENTA
+  </ion-button>
+</ion-content>
