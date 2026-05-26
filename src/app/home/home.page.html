@@ -1,0 +1,21 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="success">
+    <ion-title>Panel de Emergencias</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div style="text-align: center;">
+    <h1>Bienvenida, Genesis</h1>
+    <p>Sistema Valle del Sol - Monitoreo Activo</p>
+  </div>
+
+  <ion-card>
+    <ion-card-content style="height: 300px; background: #e0e0e0; display: flex; align-items: center; justify-content: center;">
+      <p style="color: #666;">Cargando Mapa de Incidentes...</p>
+    </ion-card-content>
+  </ion-card>
+
+<ion-button expand="block" color="danger" (click)="irAReportar()">
+  REPORTAR EMERGENCIA
+</ion-button>
