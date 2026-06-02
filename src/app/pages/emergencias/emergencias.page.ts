@@ -7,16 +7,12 @@ import { EmergenciaService, Emergencia } from '../../services/emergencia.service
 @Component({
   selector: 'app-emergencias',
   templateUrl: './emergencias.page.html',
-  // Se eliminó la línea de styleUrls para evitar el error NG2008
+  styleUrls: [],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class EmergenciasPage implements OnInit {
 
-  // Lista que se muestra en el *ngFor de tu HTML
-  emergencias: Emergencia[] = [];
-
-  // Objeto que se conecta con los [(ngModel)] de tus inputs
   nueva: Emergencia = {
     tipo: '',
     descripcion: '',
@@ -26,38 +22,23 @@ export class EmergenciasPage implements OnInit {
   constructor(private servicio: EmergenciaService) { }
 
   ngOnInit() {
-    this.cargarEmergencias();
   }
 
-  // Carga la lista desde el Backend (H2)
-  cargarEmergencias() {
-    this.servicio.obtenerEmergencias().subscribe({
-      next: (data) => {
-        this.emergencias = data;
-      },
-      error: (err) => {
-        console.error("Error al conectar con el servidor", err);
-      }
-    });
-  }
-
-  // Esta es la función que llama tu botón (click)="agregar()"
   agregar() {
-    if (this.nueva.tipo.trim() === '' || this.nueva.descripcion.trim() === '') {
-      alert("Por favor, completa los campos obligatorios.");
+    if (!this.nueva.tipo || !this.nueva.descripcion || !this.nueva.ubicacion) {
+      alert('Por favor, rellena todos los campos');
       return;
     }
 
-    this.servicio.crearEmergencia(this.nueva).subscribe({
+    this.servicio.postEmergencia(this.nueva).subscribe({
       next: (res) => {
-        alert("¡Reporte enviado con éxito!");
-        this.cargarEmergencias(); // Refresca la lista automáticamente
-        // Limpia el formulario para un nuevo reporte
+        alert('¡Emergencia reportada con éxito localmente!');
+        // Limpiamos el formulario
         this.nueva = { tipo: '', descripcion: '', ubicacion: '' };
       },
       error: (err) => {
-        alert("No se pudo enviar el reporte. Verifica que el Backend esté corriendo.");
-        console.error(err);
+        console.error('Error al conectar con el backend:', err);
+        alert('No se pudo conectar con el servidor local. Verifica que IntelliJ tenga el Play puesto.');
       }
     });
   }

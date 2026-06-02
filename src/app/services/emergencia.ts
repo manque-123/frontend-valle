@@ -3,6 +3,9 @@ import { Injectable } from '@angular/core';
 @Injectable({
   providedIn: 'root',
 })
-export class Emergencia {
-  
+export interface Emergencia {
+  id?: number;
+  tipo: string;
+  descripcion: string;
+  ubicacion: string;
 }
