@@ -1,34 +1,49 @@
 <ion-header>
-  <ion-toolbar color="danger">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Nuevo Reporte</ion-title>
+  <ion-toolbar color="primary">
+    <ion-title>Nuevo Reporte de Emergencia</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  <ion-item>
-    <ion-label position="floating">Tipo de Emergencia</ion-label>
-    <ion-select [(ngModel)]="nueva.tipo">
-      <ion-select-option value="Incendio">Incendio</ion-select-option>
-      <ion-select-option value="Accidente">Accidente</ion-select-option>
-      <ion-select-option value="Robo">Robo</ion-select-option>
-      <ion-select-option value="Otro">Otro</ion-select-option>
-    </ion-select>
-  </ion-item>
+  <ion-list lines="none">
+    <ion-item>
+      <ion-select label="Tipo de Emergencia" placeholder="Seleccione" [(ngModel)]="nueva.tipo" name="tipo">
+        <ion-select-option value="Incendio">Incendio</ion-select-option>
+        <ion-select-option value="Inundación">Inundación</ion-select-option>
+        <ion-select-option value="Médica">Médica</ion-select-option>
+        <ion-select-option value="Robo">Robo</ion-select-option>
+      </ion-select>
+    </ion-item>
 
-  <ion-item>
-    <ion-label position="floating">Descripción</ion-label>
-    <ion-textarea [(ngModel)]="nueva.descripcion"></ion-textarea>
-  </ion-item>
+    <ion-item class="ion-margin-top">
+      <ion-input label="Descripción" labelPlacement="floating" type="text" [(ngModel)]="nueva.descripcion" name="descripcion"></ion-input>
+    </ion-item>
 
-  <ion-item>
-    <ion-label position="floating">Ubicación (Dirección o Referencia)</ion-label>
-    <ion-input [(ngModel)]="nueva.ubicacion"></ion-input>
-  </ion-item>
+    <ion-item class="ion-margin-top">
+      <ion-input label="Ubicación" labelPlacement="floating" type="text" [(ngModel)]="nueva.ubicacion" name="ubicacion"></ion-input>
+    </ion-item>
+  </ion-list>
 
-  <ion-button expand="block" class="ion-margin-top" (click)="agregar()">
+  <ion-button expand="block" color="primary" class="ion-margin-top" (click)="enviarEmergencia()">
     ENVIAR REPORTE
   </ion-button>
+
+  <hr class="ion-margin-vertical" />
+
+  <h3 class="ion-padding-horizontal">Historial de Reportes</h3>
+
+  <div *ngIf="listaEmergencias.length === 0" class="ion-text-center ion-padding">
+    <p>No hay emergencias registradas o cargando...</p>
+  </div>
+
+  <ion-card *ngFor="let em of listaEmergencias">
+    <ion-card-header>
+      <ion-card-title color="danger">🚨 {{ em.tipo }}</ion-card-title>
+      <ion-card-subtitle>Estado: {{ em.estado || 'PENDIENTE' }}</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <p><strong>Descripción:</strong> {{ em.descripcion }}</p>
+      <p><strong>Ubicación:</strong> {{ em.ubicacion }}</p>
+    </ion-card-content>
+  </ion-card>
 </ion-content>

@@ -7,16 +7,15 @@ export const routes: Routes = [
   },
   {
     path: 'login',
-    loadComponent: () => import('./modules/usuarios/login/login.page').then( m => m.LoginPage)
+    loadComponent: () => import('./modules/usuarios/login/login.page').then(m => m.LoginPage)
   },
   {
     path: 'emergencias',
-    loadComponent: () => import('./pages/emergencias/emergencias.page').then( m => m.EmergenciasPage)
+    loadComponent: () => import('./pages/emergencias/emergencias.page').then(m => m.EmergenciasPage)
   },
-  // ESTA ES LA LÍNEA QUE DEBE ESTAR:
   {
     path: 'registro',
-    loadComponent: () => import('./modules/usuarios/registro/registro.page').then( m => m.RegistroPage)
+    loadComponent: () => import('./modules/usuarios/registro/registro.page').then(m => m.RegistroPage)
   },
   {
     path: '',

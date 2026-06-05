@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { IonicModule } from '@ionic/angular'; 
 import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
-import { EmergenciaService, Emergencia } from '../../services/emergencia.service';
+import { EmergenciaService } from '../../services/emergencia.service';
 
 @Component({
   selector: 'app-emergencias',
@@ -12,8 +12,9 @@ import { EmergenciaService, Emergencia } from '../../services/emergencia.service
   imports: [CommonModule, FormsModule, IonicModule]
 })
 export class EmergenciasPage implements OnInit {
-
-  nueva: Emergencia = {
+  listaEmergencias: any[] = [];
+  
+  nueva: any = {
     tipo: '',
     descripcion: '',
     ubicacion: ''
@@ -22,23 +23,43 @@ export class EmergenciasPage implements OnInit {
   constructor(private servicio: EmergenciaService) { }
 
   ngOnInit() {
+    this.cargarEmergencias();
   }
 
-  agregar() {
+  cargarEmergencias() {
+    this.servicio.getEmergencias().subscribe({
+      next: (data: any) => {
+        this.listaEmergencias = data;
+      },
+      error: (err) => console.error('Error al cargar', err)
+    });
+  }
+
+  enviarEmergencia() {
     if (!this.nueva.tipo || !this.nueva.descripcion || !this.nueva.ubicacion) {
-      alert('Por favor, rellena todos los campos');
+      alert('Por favor, rellene todos los campos.');
       return;
     }
 
-    this.servicio.postEmergencia(this.nueva).subscribe({
+    // Enviamos las variantes por si tu backend en Java usa tildes en sus atributos
+    const objetoMultiformato = {
+      tipo: this.nueva.tipo,
+      descripcion: this.nueva.descripcion,
+      descripción: this.nueva.descripcion, 
+      ubicacion: this.nueva.ubicacion,
+      ubicación: this.nueva.ubicacion,     
+      estado: 'PENDIENTE'
+    };
+
+    this.servicio.postEmergencia(objetoMultiformato).subscribe({
       next: (res) => {
-        alert('¡Emergencia reportada con éxito localmente!');
-        // Limpiamos el formulario
-        this.nueva = { tipo: '', descripcion: '', ubicacion: '' };
+        alert('¡Emergencia reportada con éxito!');
+        this.cargarEmergencias(); 
+        this.nueva = { tipo: '', descripcion: '', ubicacion: '' }; 
       },
       error: (err) => {
-        console.error('Error al conectar con el backend:', err);
-        alert('No se pudo conectar con el servidor local. Verifica que IntelliJ tenga el Play puesto.');
+        console.error('Error al enviar:', err);
+        alert('Error al guardar el reporte.');
       }
     });
   }
