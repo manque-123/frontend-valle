@@ -1,27 +1,43 @@
-#container {
-  text-align: center;
-
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+/* Contenedor principal que distribuye el mapa arriba y el formulario abajo */
+.flex-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; // Ocupa el 100% del alto de la pantalla disponible
+  box-sizing: border-box;
+  background-color: #ffffff !important;
 }
 
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
+/* El mapa ocupará un tamaño fijo y controlado */
+#map {
+  height: 45vh !important; // Mantiene el mapa en el 45% superior de la pantalla
+  width: 100% !important;
+  display: block;
+  position: relative;
+  z-index: 1; // Evita que se tape con otros elementos de Ionic
 }
 
-#container p {
-  font-size: 16px;
-  line-height: 22px;
-
-  color: #8c8c8c;
-
-  margin: 0;
+/* Contenedor del formulario de reclamos con scroll independiente */
+.form-container {
+  flex: 1; // Toma todo el espacio restante abajo
+  padding: 20px;
+  overflow-y: auto; // SÍ te dejará bajar con el dedo si el texto es largo
+  background-color: #ffffff !important;
+  box-sizing: border-box;
 }
 
-#container a {
-  text-decoration: none;
+/* Estilos opcionales para que los textos de tus formularios se vean perfectos */
+h3 {
+  color: #111111 !important;
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+label {
+  color: #444444 !important;
+  font-size: 0.95rem;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 6px;
 }

@@ -1,13 +1,44 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>registro</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content style="--background: #ffffff !important; background-color: #ffffff !important;">
+  <div style="padding: 30px; text-align: center; font-family: sans-serif; background-color: #ffffff !important; height: 100vh;">
+    
+    <h1 style="color: #000000 !important; font-size: 2.2rem; margin-top: 40px; font-weight: bold; margin-bottom: 5px;">
+      Únete al Sistema
+    </h1>
+    <p style="color: #64748b !important; margin-bottom: 40px; font-size: 1.05rem;">
+      Regístrate para administrar incidentes
+    </p>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">registro</ion-title>
-    </ion-toolbar>
-  </ion-header>
+    <!-- CAMBIO SOLICITADO: RUT EN LUGAR DE NOMBRE COMPLETO -->
+    <div style="text-align: left; margin-bottom: 24px;">
+      <label style="color: #1e293b; font-size: 1rem; font-weight: bold; display: block; margin-bottom: 8px;">RUT Administrador</label>
+      <input [(ngModel)]="rut" type="text" placeholder="Ej: 20.453.123-K" style="width: 100%; padding: 14px; border: 1px solid #cbd5e1; color: #000000 !important; background-color: #f8fafc !important; font-size: 1rem; border-radius: 8px; outline: none;">
+    </div>
+
+    <!-- Campo Usuario -->
+    <div style="text-align: left; margin-bottom: 24px;">
+      <label style="color: #1e293b; font-size: 1rem; font-weight: bold; display: block; margin-bottom: 8px;">Usuario</label>
+      <input [(ngModel)]="usuario" type="text" placeholder="Crea un usuario (Ej: Genesis)" style="width: 100%; padding: 14px; border: 1px solid #cbd5e1; color: #000000 !important; background-color: #f8fafc !important; font-size: 1rem; border-radius: 8px; outline: none;">
+    </div>
+
+    <!-- Campo Contraseña con las condiciones requeridas -->
+    <div style="text-align: left; margin-bottom: 35px;">
+      <label style="color: #1e293b; font-size: 1rem; font-weight: bold; display: block; margin-bottom: 8px;">Contraseña</label>
+      <input [(ngModel)]="contrasena" type="password" placeholder="••••••••" style="width: 100%; padding: 14px; border: 1px solid #cbd5e1; color: #000000 !important; background-color: #f8fafc !important; font-size: 1rem; border-radius: 8px; outline: none;">
+      <small style="color: #64748b; font-size: 0.8rem; display: block; margin-top: 6px; font-weight: 500; line-height: 1.3;">
+        🔴 Requisito: Mínimo 4 letras, 1 número y 1 signo.
+      </small>
+    </div>
+
+    <!-- BOTÓN AZUL: CREAR CUENTA -->
+    <button (click)="crearCuenta()" style="width: 100%; background-color: #1d4ed8 !important; color: #ffffff !important; border: none; padding: 16px; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 6px rgba(29, 78, 216, 0.2); margin-bottom: 25px;">
+      CREAR CUENTA
+    </button>
+
+    <div>
+      <button (click)="volverAlLogin()" style="background: none; border: none; color: #1d4ed8; font-size: 1rem; font-weight: 600; text-decoration: underline; cursor: pointer;">
+        Volver al Login
+      </button>
+    </div>
+
+  </div>
 </ion-content>

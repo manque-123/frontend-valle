@@ -12,19 +12,16 @@ import * as L from 'leaflet';
 })
 export class HomePage implements OnInit {
 
-  nombreUsuario: string = 'Usuario'; // Nombre por defecto
+  nombreUsuario: string = 'Usuario'; 
   mapa!: L.Map;
 
   constructor(private router: Router) {}
 
   ngOnInit() {
-    // 1. Rescatamos el nombre guardado en el Login
     const usuario = localStorage.getItem('usuarioLogueado');
     if (usuario) {
       this.nombreUsuario = usuario; 
     }
-
-    // 2. Inicializamos el mapa con delay para asegurar que el HTML exista
     setTimeout(() => {
       this.cargarMapa();
     }, 500);
@@ -37,7 +34,7 @@ export class HomePage implements OnInit {
           this.dibujarMapa(position.coords.latitude, position.coords.longitude);
         },
         () => {
-          this.dibujarMapa(-33.5833, -70.6333); // Plan B: La Pintana
+          this.dibujarMapa(-33.5833, -70.6333); 
         }
       );
     } else {
@@ -45,16 +42,24 @@ export class HomePage implements OnInit {
     }
   }
 
-  dibujarMapa(lat: number, lng: number) {
-    this.mapa = L.map('mapId').setView([lat, lng], 15);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap'
-    }).addTo(this.mapa);
+ dibujarMapa(lat: number, lng: number) {
+  // Inicializa el mapa en el contenedor 'mapId'
+  this.mapa = L.map('mapId').setView([lat, lng], 15);
+  
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(this.mapa);
 
-    L.marker([lat, lng]).addTo(this.mapa)
-      .bindPopup(`<b>Hola ${this.nombreUsuario}</b><br>Ubicación registrada.`)
-      .openPopup();
-  }
+  L.marker([lat, lng]).addTo(this.mapa)
+    .bindPopup(`<b>Hola ${this.nombreUsuario}</b><br>Ubicación registrada.`)
+    .openPopup();
+    
+  setTimeout(() => {
+    if (this.mapa) {
+      this.mapa.invalidateSize();
+    }
+  }, 500);
+}
 
   irAReportar() {
     this.router.navigate(['/emergencias']);

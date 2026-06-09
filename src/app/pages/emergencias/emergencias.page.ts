@@ -13,6 +13,7 @@ import { EmergenciaService } from '../../services/emergencia.service';
 })
 export class EmergenciasPage implements OnInit {
   listaEmergencias: any[] = [];
+  ciudadanoId: string = '';
   
   nueva: any = {
     tipo: '',
@@ -23,7 +24,24 @@ export class EmergenciasPage implements OnInit {
   constructor(private servicio: EmergenciaService) { }
 
   ngOnInit() {
+    this.verificarOCrearCiudadano();
     this.cargarEmergencias();
+  }
+
+  verificarOCrearCiudadano() {
+    let idGuardado = localStorage.getItem('ciudadano_id');
+    
+    if (!idGuardado) {
+      idGuardado = 'CIUDADANO-' + Math.floor(Math.random() * 1000000) + '-' + new Date().getTime();
+      localStorage.setItem('ciudadano_id', idGuardado);
+    }
+    
+    this.ciudadanoId = idGuardado;
+    console.log('ID Único del Ciudadano:', this.ciudadanoId);
+  }
+
+  irAAdmin() {
+    window.location.href = '#/admin-emergencias';
   }
 
   cargarEmergencias() {
@@ -41,14 +59,14 @@ export class EmergenciasPage implements OnInit {
       return;
     }
 
-    // Enviamos las variantes por si tu backend en Java usa tildes en sus atributos
     const objetoMultiformato = {
       tipo: this.nueva.tipo,
       descripcion: this.nueva.descripcion,
       descripción: this.nueva.descripcion, 
       ubicacion: this.nueva.ubicacion,
       ubicación: this.nueva.ubicacion,     
-      estado: 'PENDIENTE'
+      estado: 'PENDIENTE',
+      ciudadanoId: this.ciudadanoId 
     };
 
     this.servicio.postEmergencia(objetoMultiformato).subscribe({

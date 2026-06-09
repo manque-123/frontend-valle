@@ -1,49 +1,82 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-title>Nuevo Reporte de Emergencia</ion-title>
+<ion-header style="display: block !important;">
+  <ion-toolbar style="--background: #0066ff !important; background-color: #0066ff !important;">
+    <ion-title style="color: #ffffff !important; font-weight: bold; display: block !important;">Módulo Ciudadano</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <ion-list lines="none">
-    <ion-item>
-      <ion-select label="Tipo de Emergencia" placeholder="Seleccione" [(ngModel)]="nueva.tipo" name="tipo">
-        <ion-select-option value="Incendio">Incendio</ion-select-option>
-        <ion-select-option value="Inundación">Inundación</ion-select-option>
-        <ion-select-option value="Médica">Médica</ion-select-option>
-        <ion-select-option value="Robo">Robo</ion-select-option>
-      </ion-select>
-    </ion-item>
+<div style="background-color: #f1f5f9 !important; padding: 12px; text-align: center; border-bottom: 1px solid #cbd5e1; font-family: sans-serif; display: block !important;">
+  <p style="margin: 0 0 6px 0; font-size: 0.85rem; color: #475569 !important; font-weight: bold;">
+    📲 Sesión Activa ID: {{ ciudadanoId || 'Iniciando...' }}
+  </p>
+  <button (click)="irAAdmin()" style="background-color: #1e293b !important; color: #ffffff !important; border: none; padding: 8px 16px; font-weight: bold; border-radius: 6px; font-size: 0.85rem; cursor: pointer; text-transform: uppercase;">
+    ⚙️ Panel Administrador
+  </button>
+</div>
 
-    <ion-item class="ion-margin-top">
-      <ion-input label="Descripción" labelPlacement="floating" type="text" [(ngModel)]="nueva.descripcion" name="descripcion"></ion-input>
-    </ion-item>
+<ion-content style="--background: #ffffff !important; background-color: #ffffff !important; --overflow: scroll !important;">
 
-    <ion-item class="ion-margin-top">
-      <ion-input label="Ubicación" labelPlacement="floating" type="text" [(ngModel)]="nueva.ubicacion" name="ubicacion"></ion-input>
-    </ion-item>
-  </ion-list>
+  <div style="height: 100vh !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch !important; padding: 16px; background-color: #ffffff !important; background: #ffffff !important;">
+    
+    <h2 style="color: #000000 !important; font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; margin-top: 5px; font-family: sans-serif;">
+      Ingresar Nuevo Reclamo
+    </h2>
+    
+    <div style="margin-bottom: 16px;">
+      <label style="font-weight: bold; color: #1e293b !important; display: block; margin-bottom: 8px; font-family: sans-serif;">Tipo de Emergencia</label>
+      <select [(ngModel)]="nueva.tipo" style="width: 100%; padding: 14px; border: 2px solid #cbd5e1; border-radius: 8px; background-color: #ffffff !important; color: #000000 !important; font-size: 1rem; font-family: sans-serif;">
+        <option value="" disabled selected style="color: #64748b;">Seleccione</option>
+        <option value="Falla de Luminaria" style="color: #000000;">Falla de Luminaria</option>
+        <option value="Incendio" style="color: #000000;">Incendio</option>
+        <option value="Inundación" style="color: #000000;">Inundación</option>
+        <option value="Otro" style="color: #000000;">Otro / Otro incidente</option>
+      </select>
+    </div>
 
-  <ion-button expand="block" color="primary" class="ion-margin-top" (click)="enviarEmergencia()">
-    ENVIAR REPORTE
-  </ion-button>
+    <div style="margin-bottom: 16px;">
+      <label style="font-weight: bold; color: #1e293b !important; display: block; margin-bottom: 8px; font-family: sans-serif;">Descripción</label>
+      <textarea [(ngModel)]="nueva.descripcion" placeholder="Ej: Fuego en pastizales / Fuga de agua" style="width: 100%; padding: 14px; border: 2px solid #cbd5e1; border-radius: 8px; height: 110px; color: #000000 !important; background-color: #ffffff !important; resize: none; font-size: 1rem; font-family: sans-serif;"></textarea>
+    </div>
 
-  <hr class="ion-margin-vertical" />
+    <div style="margin-bottom: 24px;">
+      <label style="font-weight: bold; color: #1e293b !important; display: block; margin-bottom: 8px; font-family: sans-serif;">Ubicación</label>
+      <input [(ngModel)]="nueva.ubicacion" type="text" placeholder="Ej: Julio Barrenechea 804" style="width: 100%; padding: 14px; border: 2px solid #cbd5e1; border-radius: 8px; color: #000000 !important; background-color: #ffffff !important; font-size: 1rem; font-family: sans-serif;">
+    </div>
 
-  <h3 class="ion-padding-horizontal">Historial de Reportes</h3>
+    <div style="margin-bottom: 35px;">
+      <button (click)="enviarEmergencia()" style="width: 100%; background-color: #0066ff !important; color: #ffffff !important; border: none; padding: 16px; font-size: 1.1rem; font-weight: bold; border-radius: 8px; text-transform: uppercase; box-shadow: 0 4px 12px rgba(0,102,255,0.3); cursor: pointer; font-family: sans-serif;">
+        ENVIAR REPORTE
+      </button>
+    </div>
 
-  <div *ngIf="listaEmergencias.length === 0" class="ion-text-center ion-padding">
-    <p>No hay emergencias registradas o cargando...</p>
+    <hr style="border: 0; border-top: 2px solid #e2e8f0; margin-bottom: 25px;">
+
+    <h2 style="color: #000000 !important; font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; font-family: sans-serif;">
+      Historial de Reportes
+    </h2>
+    
+    <div style="padding-bottom: 260px; display: block !important;">
+      <div *ngFor="let reporte of listaEmergencias" style="background-color: #ffffff !important; background: #ffffff !important; border: 1px solid #cbd5e1; border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: block !important;">
+        
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+          <span style="font-size: 1.4rem; margin-right: 8px;">🚨</span>
+          <h3 style="color: #dc2626 !important; font-size: 1.2rem; font-weight: bold; margin: 0; font-family: sans-serif;">
+            {{ reporte.tipo || 'Emergencia' }}
+          </h3>
+        </div>
+        
+        <p style="color: #334155 !important; margin: 6px 0; font-size: 0.95rem; line-height: 1.4; font-family: sans-serif;">
+          <strong style="color: #0f172a !important;">Estado:</strong> {{ reporte.estado || 'PENDIENTE' }}
+        </p>
+        <p style="color: #334155 !important; margin: 6px 0; font-size: 0.95rem; line-height: 1.4; font-family: sans-serif;">
+          <strong style="color: #0f172a !important;">Descripción:</strong> {{ reporte.descripcion }}
+        </p>
+        <p style="color: #334155 !important; margin: 6px 0; font-size: 0.95rem; line-height: 1.4; font-family: sans-serif;">
+          <strong style="color: #0f172a !important;">Ubicación:</strong> {{ reporte.ubicacion }}
+        </p>
+
+      </div>
+    </div>
+
   </div>
 
-  <ion-card *ngFor="let em of listaEmergencias">
-    <ion-card-header>
-      <ion-card-title color="danger">🚨 {{ em.tipo }}</ion-card-title>
-      <ion-card-subtitle>Estado: {{ em.estado || 'PENDIENTE' }}</ion-card-subtitle>
-    </ion-card-header>
-    <ion-card-content>
-      <p><strong>Descripción:</strong> {{ em.descripcion }}</p>
-      <p><strong>Ubicación:</strong> {{ em.ubicacion }}</p>
-    </ion-card-content>
-  </ion-card>
 </ion-content>

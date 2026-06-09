@@ -1,0 +1,79 @@
+<ion-header>
+  <ion-toolbar [color]="rolUsuario === 'admin' ? 'dark' : 'success'">
+    <ion-title style="color: #ffffff !important; font-weight: bold;">
+      {{ rolUsuario === 'admin' ? 'Panel Administrator' : 'Panel de Emergencias' }}
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content style="--background: #ffffff !important; background-color: #ffffff !important;">
+
+  <div *ngIf="rolUsuario === 'admin'" class="contenedor-scroll-admin" style="background-color: #ffffff !important; padding: 16px;">
+    <h2 style="color: #000000 !important; font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; margin-top: 5px;">
+      Gestión de Reportes Activos
+    </h2>
+    <div *ngIf="listaEmergencias.length === 0" style="text-align: center; padding: 30px; color: #666666 !important;">
+      No hay reportes registrados en el sistema.
+    </div>
+    <div *ngFor="let reporte of listaEmergencias" style="background-color: #ffffff !important; border: 1px solid #cbd5e1; border-radius: 12px; padding: 16px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+      <p><strong>Descripción:</strong> {{ reporte.descripcion }}</p>
+      <p><strong>Ubicación:</strong> {{ reporte.ubicacion }}</p>
+      <div style="display: flex; gap: 8px; margin-top: 10px;">
+        <button (click)="cambiarEstado(reporte, 'EN PROCESO')" style="flex: 1; background-color: #eab308; color: white; border: none; padding: 10px; border-radius: 6px;">En Proceso</button>
+        <button (click)="cambiarEstado(reporte, 'RESUELTO')" style="flex: 1; background-color: #22c55e; color: white; border: none; padding: 10px; border-radius: 6px;">Resuelto</button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="rolUsuario === 'ciudadano' && !verFormulario" style="padding: 20px; text-align: center; background-color: #ffffff !important; display: flex; flex-direction: column; justify-content: center; min-height: 82vh;">
+    
+    <div style="margin-bottom: 10px;">
+      <h2 style="color: #000000 !important; font-size: 1.9rem; font-weight: bold; margin: 0 0 5px 0;">
+        Bienvenid@, genesis
+      </h2>
+      <p style="color: #475569 !important; font-size: 1rem; margin: 0; font-weight: 500;">
+        Sistema Valle del Sol - Monitoreo Activo
+      </p>
+    </div>
+
+    <div style="width: 100%; border: 2px solid #cbd5e1; border-radius: 12px; overflow: hidden; margin: 15px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+      <div id="map" style="width: 100%; height: 320px; display: block; background: #e2e8f0;"></div>
+      
+      <div style="background-color: #f1f5f9; color: #1e293b; padding: 12px; font-size: 0.9rem; font-weight: bold; border-top: 1px solid #cbd5e1;">
+        📍 {{ ubicacionEmergencia || 'Buscando tu dirección exacta por GPS...' }}
+      </div>
+    </div>
+
+    <div style="margin-top: 5px; padding-bottom: 10px;">
+      <button (click)="activarFormulario()" style="width: 100%; background-color: #dc2626 !important; color: #ffffff !important; border: none; padding: 16px; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 8px rgba(220, 38, 38, 0.25);">
+        REPORTAR EMERGENCIA
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="rolUsuario === 'ciudadano' && verFormulario" style="background-color: #1e40af !important; min-height: 100vh; padding: 20px; color: white;">
+    <h2 style="color: #ffffff !important; font-size: 1.4rem; font-weight: bold; margin-top: 10px; margin-bottom: 25px; border-bottom: 2px solid rgba(255,255,255,0.2); padding-bottom: 10px;">
+      Nuevo Reporte de Emergencia
+    </h2>
+    <div style="margin-bottom: 20px;">
+      <label style="display: block; font-size: 1rem; margin-bottom: 8px;">Tipo de Emergencia</label>
+      <select [(ngModel)]="tipoEmergencia" style="width: 100%; padding: 12px; border-radius: 6px; color: black;">
+        <option value="Incendio">Incendio</option>
+        <option value="Accidente Vehicular">Accidente Vehicular</option>
+        <option value="Asalto / Robo">Asalto / Robo</option>
+        <option value="Emergencia Médica">Emergencia Médica</option>
+      </select>
+    </div>
+    <div style="margin-bottom: 20px;">
+      <label style="display: block; font-size: 1rem; margin-bottom: 8px;">Descripción</label>
+      <input [(ngModel)]="descripcionEmergencia" type="text" placeholder="Ej: Fuego structural" style="width: 100%; padding: 12px; border-radius: 6px; color: black;">
+    </div>
+    <div style="margin-bottom: 35px;">
+      <label style="display: block; font-size: 1rem; margin-bottom: 8px;">Ubicación</label>
+      <input [(ngModel)]="ubicacionEmergencia" type="text" style="width: 100%; padding: 12px; border-radius: 6px; color: black;">
+    </div>
+    <button (click)="enviarNuevoReporte()" style="width: 100%; background-color: #2563eb !important; border: 2px solid white; padding: 16px; font-size: 1.1rem; font-weight: bold; border-radius: 6px; color: white;">ENVIAR REPORTE</button>
+    <button (click)="verFormulario = false" style="width: 100%; background: transparent; color: white; margin-top: 15px; text-decoration: underline; border: none;">Volver al Mapa</button>
+  </div>
+
+</ion-content>

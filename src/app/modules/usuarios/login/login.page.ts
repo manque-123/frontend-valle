@@ -1,46 +1,56 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
-import { Router } from '@angular/router'; 
-import { EmergenciaService } from '../../../services/emergencia.service';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class LoginPage implements OnInit {
 
-  usuario: string = "";
-  contrasena: string = "";
+  usuarioAdmin: string = '';
+  contrasenaAdmin: string = '';
 
-  constructor(
-    private emergenciaService: EmergenciaService,
-    private router: Router 
-  ) { }
+  constructor(private router: Router) { }
 
   ngOnInit() { }
 
-  onLogin() {
-    console.log("Botón presionado. Usuario ingresado:", this.usuario);
+  iniciarSesionAdmin() {
+    if (!this.usuarioAdmin || !this.contrasenaAdmin) {
+      alert('Por favor, ingresa tu usuario y contraseña.');
+      return;
+    }
 
-    // Si el usuario es genesis, entra directo.
-    if (this.usuario.toLowerCase() === 'genesis') {
-      alert("¡Acceso Correcto! Bienvenida al sistema.");
-      
-      // Guardamos el nombre para que el Home lo lea
-      localStorage.setItem('usuarioLogueado', this.usuario);
-      
-      this.router.navigate(['/home']); // Te lleva a la pantalla principal
+    const usuariosGuardados = JSON.parse(localStorage.getItem('usuarios_registrados') || '[]');
+    const adminValido = usuariosGuardados.find(
+      (u: any) => u.username === this.usuarioAdmin.trim() && u.password === this.contrasenaAdmin
+    );
+
+    if (adminValido) {
+      localStorage.setItem('rol_usuario', 'admin');
+      localStorage.setItem('admin_rut', adminValido.rut);
+      alert(`¡Bienvenido Administrador: ${adminValido.username}!`);
+      this.router.navigateByUrl('/admin-emergencias');
     } else {
-      alert("Para la prueba usa el usuario: genesis");
+      alert('❌ Usuario o contraseña incorrectos.');
     }
   }
 
-  irARegistro() {
-    this.router.navigate(['/registro']);
+  ingresarComoCiudadano() {
+    // Seteamos el rol como ciudadano para que la vista active el mapa en vez de la lista vacía
+    localStorage.setItem('rol_usuario', 'ciudadano');
+    localStorage.removeItem('admin_rut');
+    
+    // Redirigimos al panel oficial que ya sabe cómo pintar el mapa de OpenStreetMap
+    this.router.navigateByUrl('/admin-emergencias');
+  }
+
+  irAlRegistro() {
+    this.router.navigateByUrl('/registro');
   }
 }
