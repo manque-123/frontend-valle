@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { EmergenciaService } from '../../services/emergencia.service';
+import { Geolocation } from '@capacitor/geolocation'; // 👈 El lector nativo del celular
 
 declare var L: any;
 
@@ -11,35 +12,7 @@ declare var L: any;
   templateUrl: './mapa.page.html',
   styleUrls: ['./mapa.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
-  styles: [`
-    /* INYECCIÓN DIRECTA DE ESTILOS CRÍTICOS PARA EVITAR PANTALLA GRIS */
-    @import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
-
-    ion-content {
-      --overflow: hidden !important;
-      overflow: hidden !important;
-    }
-    
-    .contenedor-principal {
-      padding: 15px;
-      text-align: center;
-      background-color: #ffffff !important;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-    }
-
-    /* FORZAMOS AL MAPA A HACERSE VISIBLE Y INTERACTIVO */
-    #map {
-      width: 100% !important;
-      height: 350px !important;
-      display: block !important;
-      background-color: #e2e8f0 !important;
-      touch-action: none !important; /* Cede el control total del tacto a Leaflet */
-      z-index: 10 !important;
-    }
-  `]
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class MapaPage implements OnInit {
   mapa: any;
@@ -48,31 +21,59 @@ export class MapaPage implements OnInit {
 
   tipoEmergencia: string = 'Incendio';
   descripcionEmergencia: string = '';
-  ubicacionEmergencia: string = 'julio barrenechea 804';
+  ubicacionEmergencia: string = 'Detectando tu dirección por GPS...'; 
 
   constructor(private servicio: EmergenciaService) { }
 
   ngOnInit() {
+    // Al entrar, dispara de inmediato la detección del GPS tal como lo hacías antes
     setTimeout(() => {
-      this.inicializarMapaDefinitivo();
+      this.detectarGpsOriginal();
     }, 800);
   }
 
   ionViewWillEnter() {
-    if (!this.verFormulario) {
+    if (!this.verFormulario && this.mapa) {
       setTimeout(() => {
-        this.inicializarMapaDefinitivo();
-      }, 400);
+        this.mapa.invalidateSize();
+      }, 300);
     }
   }
 
-  inicializarMapaDefinitivo() {
+  async detectarGpsOriginal() {
+    try {
+      // 1. Abre el cartelito del celular pidiendo el permiso de ubicación
+      await Geolocation.requestPermissions();
+      
+      // 2. Captura las coordenadas en vivo del satélite
+      const posicion = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 10000
+      });
+
+      const latitud = posicion.coords.latitude;
+      const longitud = posicion.coords.longitude;
+
+      // Dejamos la dirección fija en la barra que corresponde a tu zona de pruebas
+      this.ubicacionEmergencia = 'Julio Barrenechea 804'; 
+
+      // 3. Abre el mapa EXACTAMENTE en la dirección que detectó tu GPS
+      this.inicializarMapaOriginal(latitud, longitud);
+
+    } catch (error) {
+      console.error("El usuario denegó el GPS o falló la señal. Usando punto de respaldo.");
+      this.ubicacionEmergencia = 'Julio Barrenechea 804 (GPS apagado)';
+      this.inicializarMapaOriginal(-33.5411, -70.6483);
+    }
+  }
+
+  inicializarMapaOriginal(lat: number, lng: number) {
     if (this.mapa) {
       this.mapa.remove();
     }
 
     try {
-      // Arreglo de rutas de iconos para que Leaflet no falle en Android
+      // Carga de iconos estándar de Leaflet
       delete L.Icon.Default.prototype._getIconUrl;
       L.Icon.Default.mergeOptions({
         iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -80,32 +81,30 @@ export class MapaPage implements OnInit {
         shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
       });
 
-      // Forzamos opciones de desplazamiento táctil nativo
+      // Creamos el mapa centrado en la dirección del GPS detectado
       this.mapa = L.map('map', {
         dragging: true,
-        tap: !L.Browser.mobile, // Arregla el bug de doble toque en celulares
         touchZoom: true,
         zoomControl: true
-      }).setView([-33.5411, -70.6483], 15);
+      }).setView([lat, lng], 16);
 
-      // Usamos un servidor espejo alternativo de OpenStreetMap compatible con Android nativo
-      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '© OpenStreetMap'
       }).addTo(this.mapa);
 
-      // Creamos el marcador de forma limpia
-      this.marker = L.marker([-33.5411, -70.6483]).addTo(this.mapa)
+      // EL MARCADOR EXACTO DE TU FOTO: Ponía el mensaje automático apuntando al GPS
+      this.marker = L.marker([lat, lng]).addTo(this.mapa)
         .bindPopup('<b>Hola genesis</b><br>Ubicación registrada.')
         .openPopup();
 
-      // Forzar recalculado de dimensiones inmediatamente después del montaje
+      // Ajuste de tamaño automático para que las calles carguen al tiro
       setTimeout(() => {
         this.mapa.invalidateSize();
       }, 400);
 
     } catch (error) {
-      console.error("Error crítico en Leaflet nativo:", error);
+      console.error("Error en el render dinámico:", error);
     }
   }
 
@@ -114,16 +113,16 @@ export class MapaPage implements OnInit {
   }
 
   enviarNuevoReporte() {
-    if (!this.descripcionEmergencia || !this.ubicacionEmergencia) {
-      alert('Por favor, ingresa la descripción y la ubicación.');
+    if (!this.descripcionEmergencia) {
+      alert('Por favor, ingresa la descripción.');
       return;
     }
-    alert('🚨 ¡Reporte de emergencia enviado con éxito al Sistema Valle del Sol!');
+    alert('🚨 ¡Reporte enviado con éxito!');
     this.descripcionEmergencia = '';
     this.verFormulario = false;
     
     setTimeout(() => {
-      this.inicializarMapaDefinitivo();
+      this.detectarGpsOriginal();
     }, 400);
   }
 }
