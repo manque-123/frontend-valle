@@ -13,11 +13,12 @@ declare var L: any;
   standalone: true,
   imports: [CommonModule, FormsModule, IonicModule],
   styles: [`
-    /* LIBERAMOS EL SCROLL DE IONIC PARA QUE EL MAPA TENGA DESPLAZAMIENTO PROPIO */
+    /* INYECCIÓN DIRECTA DE ESTILOS CRÍTICOS PARA EVITAR PANTALLA GRIS */
+    @import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
+
     ion-content {
-      --overflow: scroll !important;
-      overflow: scroll !important;
-      -webkit-overflow-scrolling: touch !important;
+      --overflow: hidden !important;
+      overflow: hidden !important;
     }
     
     .contenedor-principal {
@@ -26,17 +27,17 @@ declare var L: any;
       background-color: #ffffff !important;
       display: flex;
       flex-direction: column;
-      min-height: 90vh;
+      height: 100%;
     }
 
-    /* CONTENEDOR DEL MAPA CON DESPLAZAMIENTO TÁCTIL ACTIVADO */
+    /* FORZAMOS AL MAPA A HACERSE VISIBLE Y INTERACTIVO */
     #map {
       width: 100% !important;
       height: 350px !important;
       display: block !important;
-      background-color: #cbd5e1 !important;
-      touch-action: pane-x pane-y !important; /* Permite mover el mapa con los dedos en Android */
-      z-index: 1 !important;
+      background-color: #e2e8f0 !important;
+      touch-action: none !important; /* Cede el control total del tacto a Leaflet */
+      z-index: 10 !important;
     }
   `]
 })
@@ -53,46 +54,58 @@ export class MapaPage implements OnInit {
 
   ngOnInit() {
     setTimeout(() => {
-      this.inicializarMapaMovible();
-    }, 600);
+      this.inicializarMapaDefinitivo();
+    }, 800);
   }
 
   ionViewWillEnter() {
     if (!this.verFormulario) {
       setTimeout(() => {
-        this.inicializarMapaMovible();
-      }, 300);
+        this.inicializarMapaDefinitivo();
+      }, 400);
     }
   }
 
-  inicializarMapaMovible() {
+  inicializarMapaDefinitivo() {
     if (this.mapa) {
       this.mapa.remove();
     }
 
     try {
-      // Configuramos el mapa con arrastre (dragging) y zoom táctil explícitamente activados
+      // Arreglo de rutas de iconos para que Leaflet no falle en Android
+      delete L.Icon.Default.prototype._getIconUrl;
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      });
+
+      // Forzamos opciones de desplazamiento táctil nativo
       this.mapa = L.map('map', {
         dragging: true,
+        tap: !L.Browser.mobile, // Arregla el bug de doble toque en celulares
         touchZoom: true,
-        scrollWheelZoom: true
+        zoomControl: true
       }).setView([-33.5411, -70.6483], 15);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
+      // Usamos un servidor espejo alternativo de OpenStreetMap compatible con Android nativo
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
       }).addTo(this.mapa);
 
+      // Creamos el marcador de forma limpia
       this.marker = L.marker([-33.5411, -70.6483]).addTo(this.mapa)
         .bindPopup('<b>Hola genesis</b><br>Ubicación registrada.')
         .openPopup();
 
-      // Forzar a Leaflet a recalcular y activarse en la pantalla
+      // Forzar recalculado de dimensiones inmediatamente después del montaje
       setTimeout(() => {
         this.mapa.invalidateSize();
-      }, 300);
+      }, 400);
 
     } catch (error) {
-      console.error("Error al cargar mapa interactivo:", error);
+      console.error("Error crítico en Leaflet nativo:", error);
     }
   }
 
@@ -110,7 +123,7 @@ export class MapaPage implements OnInit {
     this.verFormulario = false;
     
     setTimeout(() => {
-      this.inicializarMapaMovible();
+      this.inicializarMapaDefinitivo();
     }, 400);
   }
 }

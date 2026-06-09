@@ -1,3 +1,22 @@
+<style>
+  @import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
+  
+  #map {
+    width: 100% !important;
+    height: 350px !important;
+    display: block !important;
+    background-color: #e2e8f0 !important;
+    touch-action: pan-x pan-y !important; /* Libera los dedos en Android */
+  }
+  
+  /* Destruye el bloqueo de scroll de Ionic */
+  .scroll-content, ion-content {
+    --overflow: scroll !important;
+    overflow: scroll !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+</style>
+
 <ion-header>
   <ion-toolbar color="success">
     <ion-title style="color: #ffffff !important; font-weight: bold;">
@@ -8,7 +27,7 @@
 
 <ion-content [scrollEvents]="true" style="--background: #ffffff !important;">
 
-  <div *ngIf="!verFormulario" class="contenedor-principal">
+  <div *ngIf="!verFormulario" class="contenedor-principal" style="padding: 15px; text-align: center; background-color: #ffffff !important; display: flex; flex-direction: column; min-height: 85vh;">
     
     <div>
       <h2 style="color: #000000 !important; font-size: 1.8rem; font-weight: bold; margin: 10px 0 5px 0;">

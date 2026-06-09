@@ -1,0 +1,16 @@
+/* LIBERAR EL TACTO PARA EL MAPA */
+#map {
+  width: 100% !important;
+  height: 350px !important;
+  display: block !important;
+  background-color: #ffffff !important;
+  touch-action: pan-x pan-y !important; /* Esto le devuelve el control a tus dedos */
+  z-index: 999 !important;
+}
+
+/* DESTRUIR EL BLOQUEO DE PANTALLA DE IONIC */
+ion-content {
+  --overflow: scroll !important;
+  overflow: scroll !important;
+  -webkit-overflow-scrolling: touch !important;
+}

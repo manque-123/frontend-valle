@@ -1,7 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<html lang="es">
 
 <head>
   <meta charset="utf-8" />
@@ -14,15 +12,36 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="msapplication-tap-highlight" content="no" />
 
-  <link rel="icon" type="image/png" href="assets/icon/favicon.png" />
+  <link rel="icon" type="image/x-icon" href="assets/icon/favicon.ico" />
 
-  <!-- add to homescreen for ios -->
-  <meta name="mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="manifest.webmanifest" />
+
+  <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    /* Forzar a Leaflet a escuchar el arrastre de los dedos en celulares */
+    #map {
+      touch-action: pan-x pan-y !important;
+      z-index: 9999 !important;
+      display: block !important;
+    }
+    /* Destruir el bloqueo de scroll que impone Ionic de forma nativa */
+    ion-content {
+      --overflow: scroll !important;
+      overflow: scroll !important;
+      -webkit-overflow-scrolling: touch !important;
+    }
+    .leaflet-container {
+      background-color: #ffffff !important;
+    }
+  </style>
 </head>
 
 <body>
   <app-root></app-root>
+  <noscript>Por favor habilite JavaScript para continuar usando esta aplicación.</noscript>
 </body>
 
 </html>
