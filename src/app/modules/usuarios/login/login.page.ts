@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
@@ -22,7 +22,7 @@ ngOnInit() { }
 
 limpiarRut(rut: string): string {
 return (rut || '')
-.replace(/./g, '')
+.replace(/[.]/g, '')
 .replace(/-/g, '')
 .replace(/\s/g, '')
 .trim()
@@ -153,3 +153,4 @@ this.router.navigateByUrl('/registro');
 }
 
 }
+
