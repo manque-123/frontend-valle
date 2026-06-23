@@ -1,43 +1,80 @@
-/* Contenedor principal que distribuye el mapa arriba y el formulario abajo */
-.flex-container {
+.home-container {
+  width: 100%;
+  min-height: 100%;
+  background-color: #ffffff !important;
   display: flex;
   flex-direction: column;
-  height: 100vh; // Ocupa el 100% del alto de la pantalla disponible
-  box-sizing: border-box;
+  align-items: center;
+  padding: 30px 0 20px 0;
+}
+
+.welcome-box {
+  text-align: center;
+  padding: 20px 10px;
+  width: 100%;
+}
+
+.welcome-box h1 {
+  color: #000000 !important;
+  font-size: 2rem;
+  margin: 0 0 8px 0;
+  font-weight: 800;
+}
+
+.welcome-box p {
+  color: #475569 !important;
+  font-size: 1rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.map-card {
+  width: 90%;
+  height: 360px;
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
+  border: 2px solid #cbd5e1;
+  background-color: #dbeafe;
+}
+
+.map-frame {
+  width: 100%;
+  height: 360px;
+  border: 0;
+  display: block;
+  background-color: #dbeafe;
+}
+
+.location-box {
+  width: 90%;
+  padding: 14px;
+  border: 2px solid #cbd5e1;
+  border-top: none;
+  border-radius: 0 0 16px 16px;
+  background: #f8fafc;
+  text-align: center;
+}
+
+.location-box p {
+  margin: 0 0 12px 0;
+  color: #111827 !important;
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.location-box ion-button {
+  height: 48px;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.footer-button {
+  padding: 15px 20px 25px 20px;
   background-color: #ffffff !important;
 }
 
-/* El mapa ocupará un tamaño fijo y controlado */
-#map {
-  height: 45vh !important; // Mantiene el mapa en el 45% superior de la pantalla
-  width: 100% !important;
-  display: block;
-  position: relative;
-  z-index: 1; // Evita que se tape con otros elementos de Ionic
-}
-
-/* Contenedor del formulario de reclamos con scroll independiente */
-.form-container {
-  flex: 1; // Toma todo el espacio restante abajo
-  padding: 20px;
-  overflow-y: auto; // SÍ te dejará bajar con el dedo si el texto es largo
-  background-color: #ffffff !important;
-  box-sizing: border-box;
-}
-
-/* Estilos opcionales para que los textos de tus formularios se vean perfectos */
-h3 {
-  color: #111111 !important;
-  font-size: 1.3rem;
-  font-weight: bold;
-  margin-top: 0;
-  margin-bottom: 15px;
-}
-
-label {
-  color: #444444 !important;
-  font-size: 0.95rem;
-  font-weight: bold;
-  display: block;
-  margin-bottom: 6px;
+.footer-button ion-button {
+  height: 55px;
+  font-size: 1.1rem;
+  font-weight: 800;
 }

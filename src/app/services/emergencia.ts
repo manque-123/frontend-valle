@@ -6,3 +6,4 @@ export interface Emergencia {
   descripcion: string;
   ubicacion: string;
 }
+

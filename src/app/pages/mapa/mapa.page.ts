@@ -2,10 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
-import { EmergenciaService } from '../../services/emergencia.service';
-import { Geolocation } from '@capacitor/geolocation'; // 👈 El lector nativo del celular
+import { Geolocation } from '@capacitor/geolocation';
+import * as L from 'leaflet';
 
-declare var L: any;
+import { EmergenciaService } from '../../services/emergencia.service';
 
 @Component({
   selector: 'app-mapa',
@@ -15,114 +15,215 @@ declare var L: any;
   imports: [CommonModule, FormsModule, IonicModule]
 })
 export class MapaPage implements OnInit {
-  mapa: any;
-  marker: any;
+
+  mapa?: L.Map;
+  marker?: L.Marker;
+
   verFormulario: boolean = false;
+  cargandoUbicacion: boolean = true;
 
   tipoEmergencia: string = 'Incendio';
   descripcionEmergencia: string = '';
-  ubicacionEmergencia: string = 'Detectando tu dirección por GPS...'; 
 
-  constructor(private servicio: EmergenciaService) { }
+  ubicacionEmergencia: string = 'Esperando señal del GPS...';
+
+  latitud?: number;
+  longitud?: number;
+
+  constructor(private servicio: EmergenciaService) {}
 
   ngOnInit() {
-    // Al entrar, dispara de inmediato la detección del GPS tal como lo hacías antes
     setTimeout(() => {
-      this.detectarGpsOriginal();
-    }, 800);
+      this.detectarGps();
+    }, 1000);
   }
 
-  ionViewWillEnter() {
-    if (!this.verFormulario && this.mapa) {
-      setTimeout(() => {
-        this.mapa.invalidateSize();
-      }, 300);
-    }
+  ionViewDidEnter() {
+    setTimeout(() => {
+      this.mapa?.invalidateSize();
+    }, 600);
   }
 
-  async detectarGpsOriginal() {
+  async detectarGps() {
     try {
-      // 1. Abre el cartelito del celular pidiendo el permiso de ubicación
-      await Geolocation.requestPermissions();
-      
-      // 2. Captura las coordenadas en vivo del satélite
+      this.cargandoUbicacion = true;
+
+      const permisos = await Geolocation.checkPermissions();
+
+      if (permisos.location !== 'granted') {
+        const solicitud = await Geolocation.requestPermissions();
+
+        if (solicitud.location !== 'granted') {
+          this.ubicacionEmergencia = 'Permiso GPS denegado';
+          this.cargandoUbicacion = false;
+          this.inicializarMapa(-33.5411, -70.6483);
+          return;
+        }
+      }
+
       const posicion = await Geolocation.getCurrentPosition({
         enableHighAccuracy: true,
-        timeout: 10000
+        timeout: 15000,
+        maximumAge: 0
       });
 
-      const latitud = posicion.coords.latitude;
-      const longitud = posicion.coords.longitude;
+      this.latitud = posicion.coords.latitude;
+      this.longitud = posicion.coords.longitude;
 
-      // Dejamos la dirección fija en la barra que corresponde a tu zona de pruebas
-      this.ubicacionEmergencia = 'Julio Barrenechea 804'; 
+      this.ubicacionEmergencia = await this.obtenerDireccion(this.latitud, this.longitud);
 
-      // 3. Abre el mapa EXACTAMENTE en la dirección que detectó tu GPS
-      this.inicializarMapaOriginal(latitud, longitud);
+      this.inicializarMapa(this.latitud, this.longitud);
 
     } catch (error) {
-      console.error("El usuario denegó el GPS o falló la señal. Usando punto de respaldo.");
-      this.ubicacionEmergencia = 'Julio Barrenechea 804 (GPS apagado)';
-      this.inicializarMapaOriginal(-33.5411, -70.6483);
+      console.error('Error GPS:', error);
+
+      this.ubicacionEmergencia = 'Ubicación no disponible';
+
+      this.latitud = -33.5411;
+      this.longitud = -70.6483;
+
+      this.inicializarMapa(this.latitud, this.longitud);
+
+    } finally {
+      this.cargandoUbicacion = false;
     }
   }
 
-  inicializarMapaOriginal(lat: number, lng: number) {
-    if (this.mapa) {
-      this.mapa.remove();
-    }
-
+  async obtenerDireccion(lat: number, lng: number): Promise<string> {
     try {
-      // Carga de iconos estándar de Leaflet
-      delete L.Icon.Default.prototype._getIconUrl;
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-      });
+      const url = `https://backend-0-valle.onrender.com/api/geocoding/reverse?lat=${lat}&lon=${lng}`;
 
-      // Creamos el mapa centrado en la dirección del GPS detectado
-      this.mapa = L.map('map', {
+      const respuesta = await fetch(url);
+
+      if (!respuesta.ok) {
+        return 'Dirección no disponible';
+      }
+
+      const data = await respuesta.json();
+
+      if (data?.address) {
+        const calle = data.address.road || '';
+        const numero = data.address.house_number || '';
+        const comuna =
+          data.address.suburb ||
+          data.address.city ||
+          data.address.town ||
+          data.address.municipality ||
+          '';
+
+        const direccionCorta = `${calle} ${numero}${numero ? ',' : ''} ${comuna}`.trim();
+
+        if (direccionCorta.length > 3) {
+          return direccionCorta;
+        }
+      }
+
+      return data.display_name || 'Dirección no encontrada';
+
+    } catch (error) {
+      console.error('Error dirección:', error);
+      return 'Dirección no disponible';
+    }
+  }
+
+  inicializarMapa(lat: number, lng: number) {
+    try {
+      this.configurarIconosLeaflet();
+
+      if (this.mapa) {
+        this.mapa.remove();
+        this.mapa = undefined;
+      }
+
+      const contenedor =
+        document.getElementById('mapaLeaflet') ||
+        document.getElementById('mapId') ||
+        document.getElementById('map');
+
+      if (!contenedor) {
+        console.error('No existe contenedor para el mapa');
+        return;
+      }
+
+      this.mapa = L.map(contenedor, {
         dragging: true,
         touchZoom: true,
-        zoomControl: true
-      }).setView([lat, lng], 16);
+        zoomControl: true,
+        scrollWheelZoom: true
+      }).setView([lat, lng], 17);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '© OpenStreetMap'
       }).addTo(this.mapa);
 
-      // EL MARCADOR EXACTO DE TU FOTO: Ponía el mensaje automático apuntando al GPS
-      this.marker = L.marker([lat, lng]).addTo(this.mapa)
-        .bindPopup('<b>Hola genesis</b><br>Ubicación registrada.')
+      this.marker = L.marker([lat, lng])
+        .addTo(this.mapa)
+        .bindPopup(`<b>Ubicación registrada</b><br>${this.ubicacionEmergencia}`)
         .openPopup();
 
-      // Ajuste de tamaño automático para que las calles carguen al tiro
       setTimeout(() => {
-        this.mapa.invalidateSize();
-      }, 400);
+        this.mapa?.invalidateSize();
+      }, 800);
 
     } catch (error) {
-      console.error("Error en el render dinámico:", error);
+      console.error('Error al cargar Leaflet:', error);
     }
+  }
+
+  configurarIconosLeaflet() {
+    const iconDefault = L.icon({
+      iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+      iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
+
+    L.Marker.prototype.options.icon = iconDefault;
   }
 
   activarFormulario() {
     this.verFormulario = true;
+
+    setTimeout(() => {
+      this.mapa?.invalidateSize();
+    }, 500);
   }
 
   enviarNuevoReporte() {
-    if (!this.descripcionEmergencia) {
-      alert('Por favor, ingresa la descripción.');
+    if (!this.descripcionEmergencia.trim()) {
+      alert('Por favor, ingresa la descripción de la emergencia.');
       return;
     }
-    alert('🚨 ¡Reporte enviado con éxito!');
-    this.descripcionEmergencia = '';
-    this.verFormulario = false;
-    
-    setTimeout(() => {
-      this.detectarGpsOriginal();
-    }, 400);
+
+    const reporte = {
+      tipo: this.tipoEmergencia,
+      descripcion: this.descripcionEmergencia,
+      ubicacion: this.ubicacionEmergencia,
+      estado: 'PENDIENTE',
+      latitud: this.latitud,
+      longitud: this.longitud
+    };
+
+    this.servicio.postEmergencia(reporte).subscribe({
+      next: () => {
+        alert('Reporte enviado con éxito.');
+
+        this.descripcionEmergencia = '';
+        this.tipoEmergencia = 'Incendio';
+        this.verFormulario = false;
+
+        setTimeout(() => {
+          this.detectarGps();
+        }, 500);
+      },
+      error: (err) => {
+        console.error('Error al enviar reporte:', err);
+        alert('Error al guardar el reporte en Render.');
+      }
+    });
   }
 }

@@ -1,32 +1,44 @@
 <ion-header>
   <ion-toolbar color="success">
-    <ion-title style="color: #ffffff !important; font-weight: bold;">Panel de Emergencias</ion-title>
+    <ion-title style="color: #ffffff !important; font-weight: bold;">
+      Panel de Emergencias
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content style="--background: #ffffff !important;">
-  <div style="width: 100%; background-color: #ffffff !important; display: flex; flex-direction: column; align-items: center;">
-    
-    <div style="text-align: center; padding: 25px 10px 15px 10px; width: 100%;">
-      <h1 style="color: #000000 !important; font-size: 1.6rem; margin: 0 0 5px 0; font-weight: bold;">
-        Bienvenid@, {{ nombreUsuario }}
-      </h1>
-      <p style="color: #666666 !important; font-size: 0.95rem; margin: 0; font-weight: 500;">
-        Sistema Valle del Sol - Monitoreo Activo
-      </p>
+
+  <div class="home-container">
+
+    <h1>
+      Bienvenid@<span *ngIf="nombreUsuario">, {{ nombreUsuario }}</span>
+    </h1>
+
+    <div class="map-card">
+      <iframe
+        class="map-frame"
+        [src]="mapaGoogleSeguro"
+        title="Mapa de ubicación actual"
+        allowfullscreen>
+      </iframe>
     </div>
 
-    <div style="width: 90%; height: 320px; position: relative; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 1px solid #ccc;">
-      <div id="mapId" style="height: 100%; width: 100%;"></div>
+    <div class="location-box">
+      <p>{{ ubicacionEmergencia }}</p>
+
+      <ion-button expand="block" color="medium" (click)="obtenerUbicacion()">
+        OBTENER MI UBICACIÓN ACTUAL
+      </ion-button>
     </div>
 
   </div>
+
 </ion-content>
 
 <ion-footer style="background-color: #ffffff !important; border: none;">
-  <div style="padding: 15px 20px 25px 20px; background-color: #ffffff !important;">
-    <button (click)="irAReportar()" style="width: 100%; background-color: #c62828 !important; color: #ffffff !important; border: none; padding: 16px; font-size: 1.1rem; font-weight: bold; border-radius: 8px; text-transform: uppercase; box-shadow: 0 4px 10px rgba(198,40,40,0.3);">
+  <div class="footer-button">
+    <ion-button expand="block" color="danger" (click)="irAReportar()">
       REPORTAR EMERGENCIA
-    </button>
+    </ion-button>
   </div>
 </ion-footer>

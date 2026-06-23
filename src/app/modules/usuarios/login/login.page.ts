@@ -5,52 +5,151 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.page.html',
-  styleUrls: ['./login.page.scss'],
-  standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+selector: 'app-login',
+templateUrl: './login.page.html',
+styleUrls: ['./login.page.scss'],
+standalone: true,
+imports: [CommonModule, FormsModule, IonicModule]
 })
 export class LoginPage implements OnInit {
 
-  usuarioAdmin: string = '';
-  contrasenaAdmin: string = '';
+usuarioAdmin: string = '';
+contrasenaAdmin: string = '';
 
-  constructor(private router: Router) { }
+constructor(private router: Router) { }
 
-  ngOnInit() { }
+ngOnInit() { }
 
-  iniciarSesionAdmin() {
-    if (!this.usuarioAdmin || !this.contrasenaAdmin) {
-      alert('Por favor, ingresa tu usuario y contraseña.');
-      return;
-    }
+limpiarRut(rut: string): string {
+return (rut || '')
+.replace(/./g, '')
+.replace(/-/g, '')
+.replace(/\s/g, '')
+.trim()
+.toUpperCase();
+}
 
-    const usuariosGuardados = JSON.parse(localStorage.getItem('usuarios_registrados') || '[]');
-    const adminValido = usuariosGuardados.find(
-      (u: any) => u.username === this.usuarioAdmin.trim() && u.password === this.contrasenaAdmin
-    );
+iniciarSesionAdmin() {
+const usuarioIngresado = (this.usuarioAdmin || '').trim();
+const usuarioIngresadoMinuscula = usuarioIngresado.toLowerCase();
+const rutIngresado = this.limpiarRut(usuarioIngresado);
+const contrasenaIngresada = (this.contrasenaAdmin || '').trim();
 
-    if (adminValido) {
-      localStorage.setItem('rol_usuario', 'admin');
-      localStorage.setItem('admin_rut', adminValido.rut);
-      alert(`¡Bienvenido Administrador: ${adminValido.username}!`);
-      this.router.navigateByUrl('/admin-emergencias');
-    } else {
-      alert('❌ Usuario o contraseña incorrectos.');
-    }
-  }
+if (!usuarioIngresado || !contrasenaIngresada) {
+  alert('Por favor, ingresa tu RUT o usuario y contrasena.');
+  return;
+}
 
-  ingresarComoCiudadano() {
-    // Seteamos el rol como ciudadano para que la vista active el mapa en vez de la lista vacía
-    localStorage.setItem('rol_usuario', 'ciudadano');
-    localStorage.removeItem('admin_rut');
-    
-    // Redirigimos al panel oficial que ya sabe cómo pintar el mapa de OpenStreetMap
-    this.router.navigateByUrl('/admin-emergencias');
-  }
+const usuariosGuardados = JSON.parse(localStorage.getItem('usuarios_registrados') || '[]');
 
-  irAlRegistro() {
-    this.router.navigateByUrl('/registro');
-  }
+if (!usuariosGuardados || usuariosGuardados.length === 0) {
+  alert('No hay cuentas registradas. Primero crea una cuenta de administrador.');
+  return;
+}
+
+const adminValido = usuariosGuardados.find((u: any) => {
+  const usuarioGuardado = (
+    u.username ||
+    u.usuario ||
+    u.nombreUsuario ||
+    ''
+  ).toString().trim().toLowerCase();
+
+  const rutGuardado = this.limpiarRut(u.rut || u.rutOriginal || '');
+
+  const passwordGuardado = (
+    u.password ||
+    u.contrasena ||
+    ''
+  ).toString().trim();
+
+  const coincideUsuario = usuarioGuardado === usuarioIngresadoMinuscula;
+  const coincideRut = rutGuardado === rutIngresado;
+  const coincidePassword = passwordGuardado === contrasenaIngresada;
+
+  return (coincideUsuario || coincideRut) && coincidePassword;
+});
+
+if (!adminValido) {
+  alert('Usuario, RUT o contrasena incorrectos.');
+  return;
+}
+
+const nombreAdministrador =
+  adminValido.username ||
+  adminValido.usuario ||
+  adminValido.nombreUsuario ||
+  'Autoridad Municipal';
+
+localStorage.setItem('rol_usuario', 'admin');
+localStorage.setItem('nombre_usuario', nombreAdministrador);
+localStorage.setItem('admin_rut', adminValido.rut || adminValido.rutOriginal || '');
+
+alert('Bienvenido Autoridad Municipal: ' + nombreAdministrador);
+this.router.navigateByUrl('/admin-emergencias');
+
+}
+
+ingresarComoCiudadano() {
+localStorage.setItem('rol_usuario', 'ciudadano');
+localStorage.removeItem('admin_rut');
+localStorage.removeItem('nombre_usuario');
+
+this.router.navigateByUrl('/admin-emergencias');
+
+}
+
+pedirClaveAcceso(titulo: string): string | null {
+const clave = prompt(titulo);
+
+if (clave === null) {
+  return null;
+}
+
+return clave.trim();
+
+}
+
+ingresarComoBomberos() {
+const clave = this.pedirClaveAcceso('Clave Bomberos');
+
+if (clave === null) {
+  return;
+}
+
+if (clave !== 'bomberos123') {
+  alert('Clave incorrecta para Bomberos.');
+  return;
+}
+
+localStorage.setItem('rol_usuario', 'bomberos');
+localStorage.setItem('nombre_usuario', 'Bomberos');
+
+this.router.navigateByUrl('/admin-emergencias');
+
+}
+
+ingresarComoBrigada() {
+const clave = this.pedirClaveAcceso('Clave Brigada Municipal');
+
+if (clave === null) {
+  return;
+}
+
+if (clave !== 'brigada123') {
+  alert('Clave incorrecta para Brigada Municipal.');
+  return;
+}
+
+localStorage.setItem('rol_usuario', 'brigada');
+localStorage.setItem('nombre_usuario', 'Brigada Municipal');
+
+this.router.navigateByUrl('/admin-emergencias');
+
+}
+
+irAlRegistro() {
+this.router.navigateByUrl('/registro');
+}
+
 }

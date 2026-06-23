@@ -1,79 +1,361 @@
-<ion-header>
-  <ion-toolbar [color]="rolUsuario === 'admin' ? 'dark' : 'success'">
-    <ion-title style="color: #ffffff !important; font-weight: bold;">
-      {{ rolUsuario === 'admin' ? 'Panel Administrator' : 'Panel de Emergencias' }}
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="page-scroll" style="--background: #ffffff !important;"> <div *ngIf="rolUsuario === 'admin' || rolUsuario === 'bomberos' || rolUsuario === 'brigada'" class="admin-container">
+<h2>{{ obtenerTituloPanel() }}</h2>
 
-<ion-content style="--background: #ffffff !important; background-color: #ffffff !important;">
+<p class="rol-descripcion">
+  {{ obtenerDescripcionPanel() }}
+</p>
 
-  <div *ngIf="rolUsuario === 'admin'" class="contenedor-scroll-admin" style="background-color: #ffffff !important; padding: 16px;">
-    <h2 style="color: #000000 !important; font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; margin-top: 5px;">
-      Gestión de Reportes Activos
-    </h2>
-    <div *ngIf="listaEmergencias.length === 0" style="text-align: center; padding: 30px; color: #666666 !important;">
-      No hay reportes registrados en el sistema.
-    </div>
-    <div *ngFor="let reporte of listaEmergencias" style="background-color: #ffffff !important; border: 1px solid #cbd5e1; border-radius: 12px; padding: 16px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-      <p><strong>Descripción:</strong> {{ reporte.descripcion }}</p>
-      <p><strong>Ubicación:</strong> {{ reporte.ubicacion }}</p>
-      <div style="display: flex; gap: 8px; margin-top: 10px;">
-        <button (click)="cambiarEstado(reporte, 'EN PROCESO')" style="flex: 1; background-color: #eab308; color: white; border: none; padding: 10px; border-radius: 6px;">En Proceso</button>
-        <button (click)="cambiarEstado(reporte, 'RESUELTO')" style="flex: 1; background-color: #22c55e; color: white; border: none; padding: 10px; border-radius: 6px;">Resuelto</button>
-      </div>
-    </div>
+<div class="alertas-box">
+
+  <h3>Alertas Comunitarias</h3>
+
+  <div *ngIf="rolUsuario === 'admin'" class="crear-alerta-box">
+
+    <textarea
+      [(ngModel)]="mensajeAlerta"
+      placeholder="Escribe una alerta para la comunidad">
+    </textarea>
+
+    <select [(ngModel)]="zonaAlerta">
+      <option value="Baja">Zona de riesgo baja</option>
+      <option value="Media">Zona de riesgo media</option>
+      <option value="Alta">Zona de riesgo alta</option>
+    </select>
+
+    <input
+      [(ngModel)]="rutaSegura"
+      type="text"
+      placeholder="Ruta segura o punto de encuentro">
+
+    <button
+      type="button"
+      class="publicar-alerta-button"
+      (click)="publicarAlertaComunitaria()">
+      PUBLICAR ALERTA
+    </button>
+
   </div>
 
-  <div *ngIf="rolUsuario === 'ciudadano' && !verFormulario" style="padding: 20px; text-align: center; background-color: #ffffff !important; display: flex; flex-direction: column; justify-content: center; min-height: 82vh;">
-    
-    <div style="margin-bottom: 10px;">
-      <h2 style="color: #000000 !important; font-size: 1.9rem; font-weight: bold; margin: 0 0 5px 0;">
-        Bienvenid@, genesis
-      </h2>
-      <p style="color: #475569 !important; font-size: 1rem; margin: 0; font-weight: 500;">
-        Sistema Valle del Sol - Monitoreo Activo
-      </p>
-    </div>
+  <div *ngIf="listaAlertas.length === 0" class="sin-alertas">
+    No hay alertas comunitarias publicadas.
+  </div>
 
-    <div style="width: 100%; border: 2px solid #cbd5e1; border-radius: 12px; overflow: hidden; margin: 15px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
-      <div id="map" style="width: 100%; height: 320px; display: block; background: #e2e8f0;"></div>
-      
-      <div style="background-color: #f1f5f9; color: #1e293b; padding: 12px; font-size: 0.9rem; font-weight: bold; border-top: 1px solid #cbd5e1;">
-        📍 {{ ubicacionEmergencia || 'Buscando tu dirección exacta por GPS...' }}
-      </div>
-    </div>
+  <div
+    *ngFor="let alerta of listaAlertas"
+    class="alerta-card"
+    [ngClass]="{
+      'alerta-alta': alerta.zonaRiesgo === 'Alta',
+      'alerta-media': alerta.zonaRiesgo === 'Media',
+      'alerta-baja': alerta.zonaRiesgo === 'Baja',
+      'alerta-cerrada': alerta.estado === 'CERRADA'
+    }">
 
-    <div style="margin-top: 5px; padding-bottom: 10px;">
-      <button (click)="activarFormulario()" style="width: 100%; background-color: #dc2626 !important; color: #ffffff !important; border: none; padding: 16px; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 8px rgba(220, 38, 38, 0.25);">
-        REPORTAR EMERGENCIA
+    <h4>{{ alerta.estado }} - Riesgo {{ alerta.zonaRiesgo }}</h4>
+
+    <p>{{ alerta.mensaje }}</p>
+
+    <p>
+      <strong>Ruta segura:</strong> {{ alerta.rutaSegura }}
+    </p>
+
+    <p>
+      <strong>Fecha:</strong> {{ alerta.fecha }}
+    </p>
+
+    <div *ngIf="rolUsuario === 'admin'" class="alerta-actions">
+
+      <button
+        type="button"
+        class="cerrar-alerta-button"
+        (click)="cerrarAlertaComunitaria(alerta)">
+        CERRAR ALERTA
       </button>
+
+      <button
+        type="button"
+        class="eliminar-alerta-button"
+        (click)="eliminarAlertaComunitaria(alerta)">
+        ELIMINAR
+      </button>
+
     </div>
+
   </div>
 
-  <div *ngIf="rolUsuario === 'ciudadano' && verFormulario" style="background-color: #1e40af !important; min-height: 100vh; padding: 20px; color: white;">
-    <h2 style="color: #ffffff !important; font-size: 1.4rem; font-weight: bold; margin-top: 10px; margin-bottom: 25px; border-bottom: 2px solid rgba(255,255,255,0.2); padding-bottom: 10px;">
-      Nuevo Reporte de Emergencia
-    </h2>
-    <div style="margin-bottom: 20px;">
-      <label style="display: block; font-size: 1rem; margin-bottom: 8px;">Tipo de Emergencia</label>
-      <select [(ngModel)]="tipoEmergencia" style="width: 100%; padding: 12px; border-radius: 6px; color: black;">
-        <option value="Incendio">Incendio</option>
-        <option value="Accidente Vehicular">Accidente Vehicular</option>
-        <option value="Asalto / Robo">Asalto / Robo</option>
-        <option value="Emergencia Médica">Emergencia Médica</option>
-      </select>
-    </div>
-    <div style="margin-bottom: 20px;">
-      <label style="display: block; font-size: 1rem; margin-bottom: 8px;">Descripción</label>
-      <input [(ngModel)]="descripcionEmergencia" type="text" placeholder="Ej: Fuego structural" style="width: 100%; padding: 12px; border-radius: 6px; color: black;">
-    </div>
-    <div style="margin-bottom: 35px;">
-      <label style="display: block; font-size: 1rem; margin-bottom: 8px;">Ubicación</label>
-      <input [(ngModel)]="ubicacionEmergencia" type="text" style="width: 100%; padding: 12px; border-radius: 6px; color: black;">
-    </div>
-    <button (click)="enviarNuevoReporte()" style="width: 100%; background-color: #2563eb !important; border: 2px solid white; padding: 16px; font-size: 1.1rem; font-weight: bold; border-radius: 6px; color: white;">ENVIAR REPORTE</button>
-    <button (click)="verFormulario = false" style="width: 100%; background: transparent; color: white; margin-top: 15px; text-decoration: underline; border: none;">Volver al Mapa</button>
+</div>
+
+<button type="button" class="logout-button" (click)="cerrarSesion()">
+  CERRAR SESION
+</button>
+
+<div class="admin-filter-box">
+  <label>Filtrar reportes</label>
+
+  <select [(ngModel)]="filtroAdmin">
+    <option value="todos">Todos</option>
+    <option value="pendientes">Pendientes</option>
+    <option value="proceso">En proceso</option>
+    <option value="resueltos">Resueltos</option>
+    <option value="alta">Gravedad alta</option>
+  </select>
+</div>
+
+<div *ngIf="obtenerEmergenciasFiltradas().length > 0" class="admin-map-box">
+  <h3>Mapa general de reportes</h3>
+
+  <iframe
+    class="admin-map-frame"
+    [src]="mapaAdminSeguro"
+    loading="lazy">
+  </iframe>
+</div>
+
+<div *ngIf="obtenerEmergenciasFiltradas().length === 0" class="empty-box">
+  {{ obtenerMensajeSinReportes() }}
+</div>
+
+<div
+  *ngFor="let reporte of obtenerEmergenciasFiltradas()"
+  class="reporte-card"
+  [ngClass]="{
+    'card-alta': reporte.gravedad === 'Alta',
+    'card-media': reporte.gravedad === 'Media' || !reporte.gravedad,
+    'card-baja': reporte.gravedad === 'Baja'
+  }">
+
+  <p><strong>Tipo:</strong> {{ reporte.tipo }}</p>
+  <p><strong>Gravedad:</strong> {{ reporte.gravedad || 'Media' }}</p>
+  <p><strong>Ciudadano:</strong> {{ reporte.ciudadano || 'Sin cuenta' }}</p>
+  <p><strong>Descripcion:</strong> {{ reporte.descripcion }}</p>
+
+  <div *ngIf="reporte.evidenciaFoto" style="margin: 12px 0;">
+    <p><strong>Evidencia:</strong></p>
+
+    <img
+      [src]="reporte.evidenciaFoto"
+      style="width: 100%; max-height: 220px; object-fit: cover; border-radius: 10px;">
   </div>
 
-</ion-content>
+  <p><strong>Ubicacion:</strong> {{ reporte.ubicacion }}</p>
+  <p><strong>Latitud:</strong> {{ reporte.latitud || reporte.latitude || 'No registrada' }}</p>
+  <p><strong>Longitud:</strong> {{ reporte.longitud || reporte.longitude || reporte.lng || 'No registrada' }}</p>
+  <p><strong>Estado:</strong> {{ reporte.estado }}</p>
+
+  <p><strong>Derivado a:</strong> {{ reporte.derivadoA || 'Sin derivar' }}</p>
+  <p><strong>Responsable:</strong> {{ reporte.responsable || 'Pendiente' }}</p>
+  <p><strong>Fecha derivacion:</strong> {{ reporte.fechaDerivacion || 'Sin registrar' }}</p>
+
+  <div *ngIf="rolUsuario === 'admin'" class="derivar-box">
+    <label>Derivar reporte</label>
+
+    <select
+      [ngModel]="reporte.derivadoA || ''"
+      (ngModelChange)="derivarReporte(reporte, $event)">
+      <option value="">Sin derivar</option>
+      <option value="Bomberos">Bomberos</option>
+      <option value="Brigada Municipal">Brigada Municipal</option>
+      <option value="Seguridad Municipal">Seguridad Municipal</option>
+      <option value="Emergencia Medica">Emergencia Medica</option>
+    </select>
+  </div>
+
+  <button
+    type="button"
+    class="mapa-button"
+    (click)="verEnMapa(reporte)">
+    VER EN MAPA
+  </button>
+
+  <div class="estado-buttons">
+
+    <button type="button" (click)="cambiarEstado(reporte, 'EN PROCESO')">
+      En Proceso
+    </button>
+
+    <button type="button" (click)="cambiarEstado(reporte, 'RESUELTO')">
+      Resuelto
+    </button>
+
+    <button
+      *ngIf="rolUsuario === 'admin'"
+      type="button"
+      class="delete-button"
+      (click)="eliminarReporte(reporte)">
+      Eliminar
+    </button>
+
+  </div>
+
+</div>
+</div> <div *ngIf="rolUsuario === 'ciudadano' && !verFormulario" class="citizen-container">
+<div class="welcome-box">
+  <h1>Bienvenid@, {{ nombreUsuario }}</h1>
+
+  <button type="button" class="logout-button" (click)="cerrarSesion()">
+    CERRAR SESION
+  </button>
+
+  <p>Sistema Valle del Sol - Monitoreo Activo</p>
+</div>
+
+<div class="alertas-box">
+
+  <h3>Alertas Comunitarias</h3>
+
+  <div *ngIf="listaAlertas.length === 0" class="sin-alertas">
+    No hay alertas comunitarias publicadas.
+  </div>
+
+  <div
+    *ngFor="let alerta of listaAlertas"
+    class="alerta-card"
+    [ngClass]="{
+      'alerta-alta': alerta.zonaRiesgo === 'Alta',
+      'alerta-media': alerta.zonaRiesgo === 'Media',
+      'alerta-baja': alerta.zonaRiesgo === 'Baja',
+      'alerta-cerrada': alerta.estado === 'CERRADA'
+    }">
+
+    <h4>{{ alerta.estado }} - Riesgo {{ alerta.zonaRiesgo }}</h4>
+
+    <p>{{ alerta.mensaje }}</p>
+
+    <p>
+      <strong>Ruta segura:</strong> {{ alerta.rutaSegura }}
+    </p>
+
+    <p>
+      <strong>Fecha:</strong> {{ alerta.fecha }}
+    </p>
+
+  </div>
+
+</div>
+
+<div class="map-card">
+  <iframe
+    class="map-frame"
+    [src]="mapaGoogleSeguro"
+    title="Mapa ubicacion actual"
+    allowfullscreen>
+  </iframe>
+</div>
+
+<div class="location-box">
+  <p>{{ ubicacionEmergencia }}</p>
+</div>
+
+<div class="report-button-box">
+  <button type="button" class="emergency-button" (click)="activarFormulario()">
+    REPORTAR EMERGENCIA
+  </button>
+</div>
+
+<div class="historial-box">
+  <h2>Mis reportes</h2>
+
+  <div *ngIf="misReportes.length === 0" class="sin-reportes">
+    Aun no tienes reportes enviados.
+  </div>
+
+  <div *ngFor="let reporte of misReportes" class="mi-reporte-card">
+    <p><strong>Tipo:</strong> {{ reporte.tipo }}</p>
+    <p><strong>Descripcion:</strong> {{ reporte.descripcion }}</p>
+
+    <div *ngIf="reporte.evidenciaFoto" style="margin: 12px 0;">
+      <p><strong>Evidencia:</strong></p>
+
+      <img
+        [src]="reporte.evidenciaFoto"
+        style="width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px;">
+    </div>
+
+    <p><strong>Ubicacion:</strong> {{ reporte.ubicacion }}</p>
+
+    <p>
+      <strong>Estado:</strong>
+      <span class="estado-reporte" [ngClass]="obtenerClaseEstado(reporte.estado)">
+        {{ reporte.estado || 'PENDIENTE' }}
+      </span>
+    </p>
+  </div>
+</div>
+</div> <div *ngIf="rolUsuario === 'ciudadano' && verFormulario" class="form-screen">
+<div class="form-topbar">
+  Nuevo Reporte de Emergencia
+</div>
+
+<div class="form-body">
+
+  <div class="form-row">
+    <label>Tipo de Emergencia</label>
+
+    <select [(ngModel)]="tipoEmergencia" class="form-select">
+      <option value="Incendio">Incendio</option>
+      <option value="Accidente Vehicular">Accidente Vehicular</option>
+      <option value="Asalto / Robo">Asalto / Robo</option>
+      <option value="Emergencia Medica">Emergencia Medica</option>
+      <option value="Otro">Otro</option>
+    </select>
+  </div>
+
+  <div class="form-row">
+    <label>Gravedad</label>
+
+    <select [(ngModel)]="gravedadEmergencia" class="form-select">
+      <option value="Baja">Baja</option>
+      <option value="Media">Media</option>
+      <option value="Alta">Alta</option>
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label>Descripcion</label>
+
+    <textarea
+      [(ngModel)]="descripcionEmergencia"
+      class="form-textarea"
+      placeholder="Describe lo que esta ocurriendo...">
+    </textarea>
+  </div>
+
+  <div class="form-field">
+    <label>Foto o evidencia</label>
+
+    <button
+      type="button"
+      class="photo-button"
+      (click)="tomarFotoEvidencia()">
+      TOMAR FOTO
+    </button>
+
+    <img
+      *ngIf="evidenciaFoto"
+      [src]="evidenciaFoto"
+      style="width: 100%; max-height: 220px; object-fit: cover; border-radius: 10px; margin-top: 12px;">
+  </div>
+
+  <div class="form-field">
+    <label>Ubicacion</label>
+
+    <textarea
+      [value]="ubicacionEmergencia"
+      class="form-textarea"
+      readonly>
+    </textarea>
+  </div>
+
+  <button
+    type="button"
+    class="send-button"
+    (click)="enviarNuevoReporte()"
+    [disabled]="enviandoReporte">
+    {{ enviandoReporte ? 'ENVIANDO...' : 'ENVIAR REPORTE' }}
+  </button>
+
+  <button type="button" class="back-button" (click)="verFormulario = false">
+    VOLVER AL MAPA
+  </button>
+
+</div>
+</div> </ion-content>

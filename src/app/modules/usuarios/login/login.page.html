@@ -1,49 +1,92 @@
-<ion-content [scrollEvents]="true" style="--overflow: scroll !important; overflow: scroll !important; --background: #ffffff !important; background-color: #ffffff !important;">
-  
-  <div style="padding: 30px; text-align: center; font-family: sans-serif; background-color: #ffffff !important;">
-    
-    <div style="margin-top: 25px; margin-bottom: 10px;">
-      <span style="font-size: 2.5rem;">🚨</span>
-    </div>
+<ion-content class="login-content">
 
-    <h1 style="color: #000000 !important; font-size: 2.2rem; font-weight: bold; margin-bottom: 5px;">
-      Sistema Valle del Sol
-    </h1>
-    <p style="color: #64748b !important; margin-bottom: 35px; font-size: 1.05rem;">
-      Ingresa tus credenciales
-    </p>
+  <div class="login-container">
 
-    <div style="text-align: left; margin-bottom: 20px;">
-      <label style="color: #1e293b; font-size: 0.95rem; font-weight: bold; display: block; margin-bottom: 6px;">RUT de Usuario</label>
-      <input [(ngModel)]="usuarioAdmin" type="text" placeholder="Ej: 20453123-K" style="width: 100%; padding: 12px 0; border: none; border-bottom: 1px solid #cbd5e1; color: #000000 !important; background: transparent; font-size: 1.1rem; outline: none;">
-    </div>
+<h1 class="login-title">
+  Sistema Valle del Sol
+</h1>
 
-    <div style="text-align: left; margin-bottom: 30px;">
-      <label style="color: #1e293b; font-size: 0.95rem; font-weight: bold; display: block; margin-bottom: 6px;">Contraseña</label>
-      <input [(ngModel)]="contrasenaAdmin" type="password" placeholder="Ingrese su contraseña" style="width: 100%; padding: 12px 0; border: none; border-bottom: 1px solid #cbd5e1; color: #000000 !important; background: transparent; font-size: 1.1rem; outline: none;">
-    </div>
+<p class="login-subtitle">
+  Ingresa tus credenciales
+</p>
 
-    <button (click)="iniciarSesionAdmin()" style="width: 100%; background-color: #1d4ed8 !important; color: #ffffff !important; border: none; padding: 16px; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 6px rgba(29, 78, 216, 0.2); margin-bottom: 25px;">
-      INGRESAR
-    </button>
+<div class="login-field">
+  <label>
+    RUT de Usuario
+  </label>
 
-    <p style="color: #64748b; font-size: 0.85rem; font-weight: bold; text-transform: uppercase; margin-bottom: 12px;">
-      ¿Eres nuevo y no tienes cuenta?
-    </p>
-    
-    <button (click)="irAlRegistro()" style="width: 100%; background: transparent; color: #0f172a !important; border: 2px solid #0f172a; padding: 14px; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase; margin-bottom: 25px;">
-      REGÍSTRATE AQUÍ
-    </button>
+  <input
+    [(ngModel)]="usuarioAdmin"
+    type="text"
+    placeholder="20.453.123-K">
+</div>
 
-    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px dashed #cbd5e1; padding-bottom: 80px;">
-      <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 15px; font-weight: 500;">
-        ¿Quieres reportar un incidente en la vía pública?
-      </p>
-      
-      <button (click)="ingresarComoCiudadano()" style="width: 100%; background-color: #dc2626 !important; color: #ffffff !important; border: none; padding: 14px; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 6px rgba(220, 38, 38, 0.2);">
-        🚨 Reportar Emergencia Directo
-      </button>
-    </div>
+<div class="login-field">
+  <label>
+    Contrasena
+  </label>
+
+  <input
+    [(ngModel)]="contrasenaAdmin"
+    type="password"
+    placeholder="********">
+</div>
+
+<button
+  type="button"
+  class="login-button"
+  (click)="iniciarSesionAdmin()">
+  INGRESAR
+</button>
+
+<button
+  type="button"
+  class="emergency-direct-button"
+  style="background: #b91c1c; margin-top: 18px;"
+  (click)="ingresarComoBomberos()">
+  INGRESAR COMO BOMBEROS
+</button>
+
+<button
+  type="button"
+  class="emergency-direct-button"
+  style="background: #16a34a; margin-top: 14px;"
+  (click)="ingresarComoBrigada()">
+  INGRESAR COMO BRIGADA MUNICIPAL
+</button>
+
+<div class="register-box">
+
+  <p>
+    ERES NUEVO Y NO TIENES CUENTA
+  </p>
+
+  <button
+    type="button"
+    class="register-button"
+    (click)="irAlRegistro()">
+    REGISTRATE AQUI
+  </button>
+
+</div>
+
+<div class="divider"></div>
+
+<div class="citizen-box">
+
+  <p>
+    Quieres reportar un incidente en la via publica
+  </p>
+
+  <button
+    type="button"
+    class="emergency-direct-button"
+    (click)="ingresarComoCiudadano()">
+    REPORTAR EMERGENCIA DIRECTO
+  </button>
+
+</div>
 
   </div>
+
 </ion-content>

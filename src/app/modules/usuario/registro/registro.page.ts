@@ -1,59 +1,100 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-registro-usuario',
-  templateUrl: './registro.page.html',
-  styleUrls: [],
-  standalone: true,
-  imports: [CommonModule, IonicModule]
+selector: 'app-registro-usuarios',
+templateUrl: './registro.page.html',
+styleUrls: ['./registro.page.scss'],
+standalone: true,
+imports: [CommonModule, FormsModule, IonicModule]
 })
 export class RegistroPage implements OnInit {
 
-  constructor(private router: Router) { }
+rutAdmin: string = '';
+usuarioAdmin: string = '';
+contrasenaAdmin: string = '';
 
-  ngOnInit() { }
+constructor(private router: Router) { }
 
-  ejecutarRegistroDirecto(rutRecibido: string, usuarioRecibido: string, contrasenaRecibida: string) {
-    if (!rutRecibido || !usuarioRecibido || !contrasenaRecibida) {
-      alert('Por favor, complete todos los campos obligatorios.');
-      return;
-    }
+ngOnInit() { }
 
-    const rutLimpio = rutRecibido.replace(/\./g, '').replace(/-/g, '').trim().toUpperCase();
+limpiarRut(rut: string): string {
+return (rut || '')
+.replace(/./g, '')
+.replace(/-/g, '')
+.replace(/\s/g, '')
+.trim()
+.toUpperCase();
+}
 
-    const usuariosGuardados = JSON.parse(localStorage.getItem('usuarios_registrados') || '[]');
-    const existeRut = usuariosGuardados.some((u: any) => u.rut === rutLimpio);
+ejecutarRegistroDirecto() {
+const rutLimpio = this.limpiarRut(this.rutAdmin);
+const usuarioLimpio = (this.usuarioAdmin || '').trim();
+const contrasenaLimpia = (this.contrasenaAdmin || '').trim();
 
-    if (existeRut) {
-      alert('❌ Error: Este RUT ya se encuentra registrado como Administrador.');
-      return;
-    }
+if (!rutLimpio || !usuarioLimpio || !contrasenaLimpia) {
+  alert('Por favor, complete RUT, usuario y contraseña.');
+  return;
+}
 
-    const letrasMatch = contrasenaRecibida.match(/[a-zA-Z]/g);
-    const cantidadLetras = letrasMatch ? letrasMatch.length : 0;
-    const tieneNumero = /\d/.test(contrasenaRecibida);
-    const tieneSigno = /[^a-zA-Z0-9]/.test(contrasenaRecibida);
+const letrasMatch = contrasenaLimpia.match(/[a-zA-Z]/g);
+const cantidadLetras = letrasMatch ? letrasMatch.length : 0;
+const tieneNumero = /\d/.test(contrasenaLimpia);
+const tieneSigno = /[^a-zA-Z0-9]/.test(contrasenaLimpia);
 
-    if (cantidadLetras < 4 || !tieneNumero || !tieneSigno) {
-      alert('⚠️ La contraseña debe tener mínimo 4 letras, 1 número y 1 carácter especial.');
-      return;
-    }
+if (cantidadLetras < 4 || !tieneNumero || !tieneSigno) {
+  alert('La contraseña debe tener mínimo 4 letras, 1 número y 1 signo.');
+  return;
+}
 
-    usuariosGuardados.push({
-      rut: rutLimpio,
-      username: usuarioRecibido.trim(),
-      password: contrasenaRecibida
-    });
-    localStorage.setItem('usuarios_registrados', JSON.stringify(usuariosGuardados));
+const usuariosGuardados = JSON.parse(localStorage.getItem('usuarios_registrados') || '[]');
 
-    alert('🎉 ¡Administrador registrado con éxito!');
-    window.location.href = '#/login';
-  }
+const nuevoAdmin = {
+  rut: rutLimpio,
+  rutOriginal: this.rutAdmin.trim(),
+  username: usuarioLimpio,
+  usuario: usuarioLimpio,
+  nombreUsuario: usuarioLimpio,
+  password: contrasenaLimpia,
+  contrasena: contrasenaLimpia,
+  rol: 'admin',
+  fechaRegistro: new Date().toISOString()
+};
 
-  irAlLoginAlTiro() {
-    window.location.href = '#/login';
-  }
+const indiceExistente = usuariosGuardados.findIndex((u: any) => {
+  const rutGuardado = this.limpiarRut(u.rut || u.rutOriginal || '');
+  const usuarioGuardado = (
+    u.username ||
+    u.usuario ||
+    u.nombreUsuario ||
+    ''
+  ).toString().trim().toLowerCase();
+
+  return rutGuardado === rutLimpio || usuarioGuardado === usuarioLimpio.toLowerCase();
+});
+
+if (indiceExistente >= 0) {
+  usuariosGuardados[indiceExistente] = nuevoAdmin;
+} else {
+  usuariosGuardados.push(nuevoAdmin);
+}
+
+localStorage.setItem('usuarios_registrados', JSON.stringify(usuariosGuardados));
+
+alert('Administrador registrado con éxito. Ahora inicia sesión.');
+
+this.rutAdmin = '';
+this.usuarioAdmin = '';
+this.contrasenaAdmin = '';
+
+this.router.navigateByUrl('/login');
+
+}
+
+irAlLoginAlTiro() {
+this.router.navigateByUrl('/login');
+}
 }

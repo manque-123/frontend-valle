@@ -1,16 +1,43 @@
-/* LIBERAR EL TACTO PARA EL MAPA */
-#map {
-  width: 100% !important;
-  height: 350px !important;
-  display: block !important;
+.flex-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  box-sizing: border-box;
   background-color: #ffffff !important;
-  touch-action: pan-x pan-y !important; /* Esto le devuelve el control a tus dedos */
-  z-index: 999 !important;
 }
 
-/* DESTRUIR EL BLOQUEO DE PANTALLA DE IONIC */
-ion-content {
-  --overflow: scroll !important;
-  overflow: scroll !important;
-  -webkit-overflow-scrolling: touch !important;
+#mapId,
+#mapaLeaflet,
+#map {
+  height: 430px !important;
+  width: 100% !important;
+  min-height: 430px !important;
+  display: block !important;
+  position: relative !important;
+  z-index: 1 !important;
+  background-color: #dbeafe;
+}
+
+.form-container {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background-color: #ffffff !important;
+  box-sizing: border-box;
+}
+
+h3 {
+  color: #111111 !important;
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+label {
+  color: #444444 !important;
+  font-size: 0.95rem;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 6px;
 }

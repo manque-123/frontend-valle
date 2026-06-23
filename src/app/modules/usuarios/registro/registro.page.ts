@@ -28,7 +28,7 @@ export class RegistroPage implements OnInit {
     const existeRut = usuariosGuardados.some((u: any) => u.rut === rutLimpio);
 
     if (existeRut) {
-      alert('❌ Error: Este RUT ya se encuentra registrado como Administrador.');
+      alert(' Error: Este RUT ya se encuentra registrado como Administrador.');
       return;
     }
 
@@ -38,7 +38,7 @@ export class RegistroPage implements OnInit {
     const tieneSigno = /[^a-zA-Z0-9]/.test(contrasenaRecibida);
 
     if (cantidadLetras < 4 || !tieneNumero || !tieneSigno) {
-      alert('⚠️ La contraseña debe tener mínimo 4 letras, 1 número y 1 signo.');
+      alert(' La contraseña debe tener mínimo 4 letras, 1 número y 1 signo.');
       return;
     }
 
@@ -49,7 +49,7 @@ export class RegistroPage implements OnInit {
     });
     localStorage.setItem('usuarios_registrados', JSON.stringify(usuariosGuardados));
 
-    alert('🎉 ¡Administrador registrado con éxito!');
+    alert(' ¡Administrador registrado con éxito!');
     window.location.href = '#/login';
   }
 
@@ -57,3 +57,4 @@ export class RegistroPage implements OnInit {
     window.location.href = '#/login';
   }
 }
+
