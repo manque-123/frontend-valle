@@ -1,9 +1,24 @@
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
 import { HomePage } from './home.page';
 
 describe('HomePage', () => {
+  let component: HomePage;
+  let fixture: ComponentFixture<HomePage>;
 
-it('debe existir la prueba base del home', () => {
-expect(HomePage).toBeTruthy();
-});
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [HomePage],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]
+    }).compileComponents();
 
+    fixture = TestBed.createComponent(HomePage);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('debe crear la página', () => {
+    expect(component).toBeTruthy();
+  });
 });
