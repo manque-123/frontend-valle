@@ -375,10 +375,9 @@ this.verFormulario = true;
 }
 
 async enviarNuevoReporte() {
-try {
-if (this.enviandoReporte) {
-return;
-}
+  if (this.enviandoReporte) {
+    return;
+  }
 
   if (!this.descripcionEmergencia || !this.descripcionEmergencia.trim()) {
     alert('Debes escribir una descripcion de la emergencia.');
@@ -400,51 +399,33 @@ return;
 
   this.enviandoReporte = true;
 
-  const reporte: any = {
-    _id: 'local-' + new Date().getTime(),
+  const reporteServidor: any = {
     tipo: this.tipoEmergencia,
-    gravedad: this.gravedadEmergencia,
     descripcion: this.descripcionEmergencia.trim(),
-    evidenciaFoto: this.evidenciaFoto,
     ubicacion: this.ubicacionEmergencia,
-    latitud: this.latitud,
-    longitud: this.longitud,
-    estado: 'PENDIENTE',
-    fecha: new Date().toISOString(),
-    origen: 'local'
+    estado: 'PENDIENTE'
   };
 
-  if (this.nombreUsuario && this.nombreUsuario.trim() !== '') {
-    reporte.ciudadano = this.nombreUsuario.trim();
-  }
+  this.servicio.postEmergencia(reporteServidor).subscribe({
+    next: () => {
+      this.descripcionEmergencia = '';
+      this.evidenciaFoto = '';
+      this.tipoEmergencia = 'Incendio';
+      this.gravedadEmergencia = 'Media';
+      this.verFormulario = false;
+      this.enviandoReporte = false;
 
-  this.guardarReporteLocal(reporte);
+      this.cargarTodasLasEmergencias();
+      this.cargarMisReportes();
 
-  this.descripcionEmergencia = '';
-  this.evidenciaFoto = '';
-  this.tipoEmergencia = 'Incendio';
-  this.gravedadEmergencia = 'Media';
-  this.verFormulario = false;
-  this.enviandoReporte = false;
-
-  this.cargarMisReportes();
-
-  alert('Reporte guardado correctamente.');
-
-  this.enviarReporteServidor(reporte)
-    .then(() => {
-      console.log('Reporte enviado al servidor.');
-    })
-    .catch((error) => {
-      console.error('Servidor no respondio. El reporte quedo guardado localmente.', error);
-    });
-
-} catch (error) {
-  console.error('Error enviando reporte:', error);
-  this.enviandoReporte = false;
-  alert('Error al enviar el reporte.');
-}
-
+      alert('Reporte guardado correctamente en el servidor.');
+    },
+    error: (err) => {
+      console.error('Error enviando reporte al servidor:', err);
+      this.enviandoReporte = false;
+      alert('No se pudo guardar el reporte en el servidor.');
+    }
+  });
 }
 
 async enviarReporteServidor(reporte: any): Promise<void> {
@@ -502,40 +483,56 @@ this.guardarReportesOcultos(ocultos);
 }
 
 eliminarReporte(reporte: any) {
-const id = (reporte._id || reporte.id || '').toString();
+  const id = (reporte.id || reporte._id || '').toString();
 
-if (!id) {
-  alert('No se encontro el ID del reporte.');
-  return;
-}
+  if (!id) {
+    alert('No se encontro el ID del reporte.');
+    return;
+  }
 
-const confirmar = confirm('Seguro que deseas eliminar este reporte?');
+  const confirmar = confirm('Seguro que deseas eliminar este reporte?');
 
-if (!confirmar) {
-  return;
-}
+  if (!confirmar) {
+    return;
+  }
 
-this.ocultarReportePorId(id);
+  const eliminarDePantalla = () => {
+    this.ocultarReportePorId(id);
 
-const locales = this.obtenerReportesLocales().filter((item: any) => {
-  const itemId = (item._id || item.id || '').toString();
-  return itemId !== id;
-});
+    const locales = this.obtenerReportesLocales().filter((item: any) => {
+      const itemId = (item._id || item.id || '').toString();
+      return itemId !== id;
+    });
 
-this.guardarReportesLocales(locales);
+    this.guardarReportesLocales(locales);
 
-this.listaEmergencias = this.listaEmergencias.filter((item: any) => {
-  const itemId = (item._id || item.id || '').toString();
-  return itemId !== id;
-});
+    this.listaEmergencias = this.listaEmergencias.filter((item: any) => {
+      const itemId = (item._id || item.id || '').toString();
+      return itemId !== id;
+    });
 
-this.misReportes = this.misReportes.filter((item: any) => {
-  const itemId = (item._id || item.id || '').toString();
-  return itemId !== id;
-});
+    this.misReportes = this.misReportes.filter((item: any) => {
+      const itemId = (item._id || item.id || '').toString();
+      return itemId !== id;
+    });
+  };
 
-alert('Reporte eliminado.');
+  if (id.startsWith('local-')) {
+    eliminarDePantalla();
+    alert('Reporte eliminado localmente.');
+    return;
+  }
 
+  this.servicio.deleteEmergencia(Number(id)).subscribe({
+    next: () => {
+      eliminarDePantalla();
+      alert('Reporte eliminado correctamente.');
+    },
+    error: (err) => {
+      console.error('Error eliminando reporte:', err);
+      alert('No se pudo eliminar el reporte en el servidor.');
+    }
+  });
 }
 
 obtenerReportesLocales(): any[] {
@@ -585,34 +582,33 @@ this.guardarReportesLocales(nuevosReportes);
 }
 
 unirReportes(servidor: any[], locales: any[]): any[] {
-const resultado: any[] = [];
-const ids = new Set<string>();
-const ocultos = this.obtenerReportesOcultos();
+  const resultado: any[] = [];
+  const ids = new Set<string>();
+  const ocultos = this.obtenerReportesOcultos();
 
-[...locales, ...servidor].forEach((reporte: any) => {
-  const id = (reporte._id || reporte.id || '').toString();
+  [...servidor, ...locales].forEach((reporte: any) => {
+    const id = (reporte.id || reporte._id || '').toString();
 
-  if (id && ocultos.includes(id)) {
-    return;
-  }
+    if (id.startsWith('local-') && ocultos.includes(id)) {
+      return;
+    }
 
-  if (id && ids.has(id)) {
-    return;
-  }
+    if (id && ids.has(id)) {
+      return;
+    }
 
-  if (id) {
-    ids.add(id);
-  }
+    if (id) {
+      ids.add(id);
+    }
 
-  resultado.push(reporte);
-});
+    resultado.push(reporte);
+  });
 
-return resultado.sort((a: any, b: any) => {
-  const fechaA = new Date(a.fecha || a.createdAt || 0).getTime();
-  const fechaB = new Date(b.fecha || b.createdAt || 0).getTime();
-  return fechaB - fechaA;
-});
-
+  return resultado.sort((a: any, b: any) => {
+    const fechaA = new Date(a.fecha || a.createdAt || 0).getTime();
+    const fechaB = new Date(b.fecha || b.createdAt || 0).getTime();
+    return fechaB - fechaA;
+  });
 }
 
 iniciarActualizacionHistorial() {
@@ -629,49 +625,18 @@ this.actualizadorHistorial = setInterval(() => {
 }
 
 cargarMisReportes() {
-const locales = this.obtenerReportesLocales();
-const nombreActual = (this.nombreUsuario || '').toLowerCase();
+  const locales = this.obtenerReportesLocales();
 
-this.servicio.getEmergencias().subscribe({
-  next: (data) => {
-    const servidor = Array.isArray(data) ? data : [];
-    const unidos = this.unirReportes(servidor, locales);
-
-    this.misReportes = unidos.filter((reporte: any) => {
-      const ciudadanoReporte = (
-        reporte.ciudadano ||
-        reporte.nombreUsuario ||
-        reporte.usuario ||
-        ''
-      ).toString().toLowerCase();
-
-      if (!nombreActual) {
-        return !ciudadanoReporte;
-      }
-
-      return ciudadanoReporte === nombreActual;
-    });
-  },
-  error: (err) => {
-    console.error('Error cargando mis reportes:', err);
-
-    this.misReportes = locales.filter((reporte: any) => {
-      const ciudadanoReporte = (
-        reporte.ciudadano ||
-        reporte.nombreUsuario ||
-        reporte.usuario ||
-        ''
-      ).toString().toLowerCase();
-
-      if (!nombreActual) {
-        return !ciudadanoReporte;
-      }
-
-      return ciudadanoReporte === nombreActual;
-    });
-  }
-});
-
+  this.servicio.getEmergencias().subscribe({
+    next: (data) => {
+      const servidor = Array.isArray(data) ? data : [];
+      this.misReportes = this.unirReportes(servidor, locales);
+    },
+    error: (err) => {
+      console.error('Error cargando mis reportes:', err);
+      this.misReportes = locales;
+    }
+  });
 }
 
 cargarTodasLasEmergencias() {
