@@ -1,4 +1,4 @@
-﻿import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
@@ -15,10 +15,19 @@ export class LoginPage implements OnInit {
 
 usuarioAdmin: string = '';
 contrasenaAdmin: string = '';
+mostrarInstituciones: boolean = false;
 
 constructor(private router: Router) { }
 
 ngOnInit() { }
+
+abrirInstituciones() {
+this.mostrarInstituciones = true;
+}
+
+volverLoginPrincipal() {
+this.mostrarInstituciones = false;
+}
 
 limpiarRut(rut: string): string {
 return (rut || '')
@@ -36,7 +45,7 @@ const rutIngresado = this.limpiarRut(usuarioIngresado);
 const contrasenaIngresada = (this.contrasenaAdmin || '').trim();
 
 if (!usuarioIngresado || !contrasenaIngresada) {
-  alert('Por favor, ingresa tu RUT o usuario y contrasena.');
+  alert('Por favor, ingresa tu RUT o usuario y contrase\u00f1a.');
   return;
 }
 
@@ -71,7 +80,7 @@ const adminValido = usuariosGuardados.find((u: any) => {
 });
 
 if (!adminValido) {
-  alert('Usuario, RUT o contrasena incorrectos.');
+  alert('Usuario, RUT o contrase\u00f1a incorrectos.');
   return;
 }
 
@@ -153,4 +162,3 @@ this.router.navigateByUrl('/registro');
 }
 
 }
-

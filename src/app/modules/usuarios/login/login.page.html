@@ -1,91 +1,119 @@
 <ion-content class="login-content">
 
-  <div class="login-container">
+  <div class="login-container" *ngIf="!mostrarInstituciones">
 
-<h1 class="login-title">
-  Sistema Valle del Sol
-</h1>
+    <h1 class="login-title">
+      Sistema Valle del Sol
+    </h1>
 
-<p class="login-subtitle">
-  Ingresa tus credenciales
-</p>
+    <p class="login-subtitle">
+      Ingresa tus credenciales
+    </p>
 
-<div class="login-field">
-  <label>
-    RUT de Usuario
-  </label>
+    <div class="login-field">
+      <label>
+        RUT de Usuario
+      </label>
 
-  <input
-    [(ngModel)]="usuarioAdmin"
-    type="text"
-    placeholder="20.453.123-K">
-</div>
+      <input
+        [(ngModel)]="usuarioAdmin"
+        type="text"
+        placeholder="20.453.123-K">
+    </div>
 
-<div class="login-field">
-  <label>
-    Contrasena
-  </label>
+    <div class="login-field">
+      <label>
+        Contrase&ntilde;a
+      </label>
 
-  <input
-    [(ngModel)]="contrasenaAdmin"
-    type="password"
-    placeholder="********">
-</div>
+      <input
+        [(ngModel)]="contrasenaAdmin"
+        type="password"
+        placeholder="********">
+    </div>
 
-<button
-  type="button"
-  class="login-button"
-  (click)="iniciarSesionAdmin()">
-  INGRESAR
-</button>
+    <button
+      type="button"
+      class="login-button"
+      (click)="iniciarSesionAdmin()">
+      INGRESAR
+    </button>
 
-<button
-  type="button"
-  class="emergency-direct-button"
-  style="background: #b91c1c; margin-top: 18px;"
-  (click)="ingresarComoBomberos()">
-  INGRESAR COMO BOMBEROS
-</button>
+    <button
+      type="button"
+      class="emergency-direct-button"
+      style="background: #334155; margin-top: 18px;"
+      (click)="abrirInstituciones()">
+      INGRESAR COMO INSTITUCI&Oacute;N
+    </button>
 
-<button
-  type="button"
-  class="emergency-direct-button"
-  style="background: #16a34a; margin-top: 14px;"
-  (click)="ingresarComoBrigada()">
-  INGRESAR COMO BRIGADA MUNICIPAL
-</button>
+    <div class="register-box">
 
-<div class="register-box">
+      <p>
+        ERES NUEVO Y NO TIENES CUENTA
+      </p>
 
-  <p>
-    ERES NUEVO Y NO TIENES CUENTA
-  </p>
+      <button
+        type="button"
+        class="register-button"
+        (click)="irAlRegistro()">
+        REG&Iacute;STRATE AQU&Iacute;
+      </button>
 
-  <button
-    type="button"
-    class="register-button"
-    (click)="irAlRegistro()">
-    REGISTRATE AQUI
-  </button>
+    </div>
 
-</div>
+    <div class="divider"></div>
 
-<div class="divider"></div>
+    <div class="citizen-box">
 
-<div class="citizen-box">
+      <p>
+        Quieres reportar un incidente en la v&iacute;a p&uacute;blica
+      </p>
 
-  <p>
-    Quieres reportar un incidente en la via publica
-  </p>
+      <button
+        type="button"
+        class="emergency-direct-button"
+        (click)="ingresarComoCiudadano()">
+        REPORTAR EMERGENCIA DIRECTO
+      </button>
 
-  <button
-    type="button"
-    class="emergency-direct-button"
-    (click)="ingresarComoCiudadano()">
-    REPORTAR EMERGENCIA DIRECTO
-  </button>
+    </div>
 
-</div>
+  </div>
+
+  <div class="login-container" *ngIf="mostrarInstituciones">
+
+    <h1 class="login-title">
+      Acceso Institucional
+    </h1>
+
+    <p class="login-subtitle">
+      Selecciona la instituci&oacute;n correspondiente
+    </p>
+
+    <button
+      type="button"
+      class="emergency-direct-button"
+      style="background: #b91c1c; margin-top: 28px;"
+      (click)="ingresarComoBomberos()">
+      INGRESAR COMO BOMBEROS
+    </button>
+
+    <button
+      type="button"
+      class="emergency-direct-button"
+      style="background: #16a34a; margin-top: 18px;"
+      (click)="ingresarComoBrigada()">
+      INGRESAR COMO BRIGADA MUNICIPAL
+    </button>
+
+    <button
+      type="button"
+      class="register-button"
+      style="margin-top: 35px;"
+      (click)="volverLoginPrincipal()">
+      VOLVER AL LOGIN
+    </button>
 
   </div>
 
