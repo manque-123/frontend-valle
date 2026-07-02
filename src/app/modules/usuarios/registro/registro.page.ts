@@ -38,7 +38,7 @@ export class RegistroPage implements OnInit {
     const tieneSigno = /[^a-zA-Z0-9]/.test(contrasenaRecibida);
 
     if (cantidadLetras < 4 || !tieneNumero || !tieneSigno) {
-      alert(' La contraseña debe tener mínimo 4 letras, 1 número y 1 signo.');
+      alert('La contrase\u00f1a debe tener m\u00ednimo 4 letras, 1 n\u00famero y 1 car\u00e1cter especial.');
       return;
     }
 
@@ -49,7 +49,7 @@ export class RegistroPage implements OnInit {
     });
     localStorage.setItem('usuarios_registrados', JSON.stringify(usuariosGuardados));
 
-    alert(' ¡Administrador registrado con éxito!');
+    alert(' Ã‚Â¡Administrador registrado con ÃƒÂ©xito!');
     window.location.href = '#/login';
   }
 

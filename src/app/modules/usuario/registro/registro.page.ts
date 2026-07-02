@@ -36,7 +36,7 @@ const usuarioLimpio = (this.usuarioAdmin || '').trim();
 const contrasenaLimpia = (this.contrasenaAdmin || '').trim();
 
 if (!rutLimpio || !usuarioLimpio || !contrasenaLimpia) {
-  alert('Por favor, complete RUT, usuario y contraseña.');
+  alert('Por favor, complete RUT, usuario y contrase\u00f1a.');
   return;
 }
 
@@ -46,7 +46,7 @@ const tieneNumero = /\d/.test(contrasenaLimpia);
 const tieneSigno = /[^a-zA-Z0-9]/.test(contrasenaLimpia);
 
 if (cantidadLetras < 4 || !tieneNumero || !tieneSigno) {
-  alert('La contraseña debe tener mínimo 4 letras, 1 número y 1 signo.');
+  alert('La contrase\u00f1a debe tener m\u00ednimo 4 letras, 1 n\u00famero y 1 car\u00e1cter especial.');
   return;
 }
 
@@ -84,7 +84,7 @@ if (indiceExistente >= 0) {
 
 localStorage.setItem('usuarios_registrados', JSON.stringify(usuariosGuardados));
 
-alert('Administrador registrado con éxito. Ahora inicia sesión.');
+alert('Administrador registrado con ÃƒÂ©xito. Ahora inicia sesiÃƒÂ³n.');
 
 this.rutAdmin = '';
 this.usuarioAdmin = '';
