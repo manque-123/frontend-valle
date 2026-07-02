@@ -73,7 +73,7 @@ describe('AdminEmergenciasPage', () => {
     fixture.detectChanges();
   });
 
-  it('debe crear la página', () => {
+  it('debe crear la pÃ¡gina', () => {
     expect(component).toBeTruthy();
   });
 
@@ -91,14 +91,14 @@ describe('AdminEmergenciasPage', () => {
     expect(resultado).toBeTruthy();
   });
 
-  it('debe entregar clase según estado', () => {
+  it('debe entregar clase segÃºn estado', () => {
     expect(component.obtenerClaseEstado('RESUELTO')).toBe('estado-resuelto');
     expect(component.obtenerClaseEstado('EN PROCESO')).toBe('estado-proceso');
     expect(component.obtenerClaseEstado('PENDIENTE')).toBe('estado-pendiente');
     expect(component.obtenerClaseEstado(null)).toBe('estado-pendiente');
   });
 
-  it('debe entregar título según rol', () => {
+  it('debe entregar tÃ­tulo segÃºn rol', () => {
     component.rolUsuario = 'bomberos';
     expect(component.obtenerTituloPanel()).toBe('Panel Bomberos');
 
@@ -109,7 +109,7 @@ describe('AdminEmergenciasPage', () => {
     expect(component.obtenerTituloPanel()).toBe('Panel Autoridad Municipal');
   });
 
-  it('debe entregar descripción según rol', () => {
+  it('debe entregar descripciÃ³n segÃºn rol', () => {
     component.rolUsuario = 'bomberos';
     expect(component.obtenerDescripcionPanel()).toContain('Bomberos');
 
@@ -120,7 +120,7 @@ describe('AdminEmergenciasPage', () => {
     expect(component.obtenerDescripcionPanel()).toContain('Gestion');
   });
 
-  it('debe entregar mensaje sin reportes según rol', () => {
+  it('debe entregar mensaje sin reportes segÃºn rol', () => {
     component.rolUsuario = 'bomberos';
     expect(component.obtenerMensajeSinReportes()).toContain('Bomberos');
 
@@ -131,7 +131,7 @@ describe('AdminEmergenciasPage', () => {
     expect(component.obtenerMensajeSinReportes()).toContain('No hay reportes');
   });
 
-  it('debe formatear dirección desde distintos formatos', () => {
+  it('debe formatear direcciÃ³n desde distintos formatos', () => {
     expect(component.formatearDireccion({ direccion: 'Calle Uno 123' })).toBe('Calle Uno 123');
     expect(component.formatearDireccion({ formatted_address: 'Calle Dos 456' })).toBe('Calle Dos 456');
 
@@ -151,8 +151,8 @@ describe('AdminEmergenciasPage', () => {
     })).toBe('Calle Cuatro, Recoleta');
 
     expect(component.formatearDireccion({
-      display_name: 'Sector A, Comuna B, Región C, Chile, Extra'
-    })).toBe('Sector A, Comuna B, Región C, Chile');
+      display_name: 'Sector A, Comuna B, RegiÃ³n C, Chile, Extra'
+    })).toBe('Sector A, Comuna B, RegiÃ³n C, Chile');
   });
 
   it('debe manejar reportes locales', () => {
@@ -168,7 +168,7 @@ describe('AdminEmergenciasPage', () => {
     expect(component.obtenerReportesLocales()).toEqual(reportes);
   });
 
-  it('debe retornar lista vacía si localStorage tiene JSON inválido', () => {
+  it('debe retornar lista vacÃ­a si localStorage tiene JSON invÃ¡lido', () => {
     localStorage.setItem('reportes_locales', 'texto malo');
 
     expect(component.obtenerReportesLocales()).toEqual([]);
@@ -187,35 +187,37 @@ describe('AdminEmergenciasPage', () => {
     expect(component.obtenerReportesLocales().length).toBe(1);
   });
 
-  it('debe unir reportes y ocultar duplicados', () => {
-    localStorage.setItem('reportes_ocultos', JSON.stringify(['2']));
+  it('debe unir reportes y evitar duplicados sin ocultar datos del servidor', () => {
+  localStorage.setItem('reportes_ocultos', JSON.stringify(['2']));
 
-    const servidor = [
-      {
-        id: '1',
-        descripcion: 'Servidor',
-        fecha: '2026-06-30T10:00:00.000Z'
-      },
-      {
-        id: '2',
-        descripcion: 'Oculto',
-        fecha: '2026-06-30T11:00:00.000Z'
-      }
-    ];
+  const servidor = [
+    {
+      id: '1',
+      descripcion: 'Servidor',
+      fecha: '2026-06-30T10:00:00.000Z'
+    },
+    {
+      id: '2',
+      descripcion: 'Servidor visible',
+      fecha: '2026-06-30T11:00:00.000Z'
+    }
+  ];
 
-    const locales = [
-      {
-        id: '1',
-        descripcion: 'Duplicado',
-        fecha: '2026-06-30T12:00:00.000Z'
-      }
-    ];
+  const locales = [
+    {
+      id: '1',
+      descripcion: 'Duplicado',
+      fecha: '2026-06-30T12:00:00.000Z'
+    }
+  ];
 
-    const resultado = component.unirReportes(servidor, locales);
+  const resultado = component.unirReportes(servidor, locales);
+  const ids = resultado.map((item: any) => item.id);
 
-    expect(resultado.length).toBe(1);
-    expect(resultado[0].id).toBe('1');
-  });
+  expect(resultado.length).toBe(2);
+  expect(ids).toContain('1');
+  expect(ids).toContain('2');
+});
 
   it('debe filtrar emergencias por estado y gravedad', () => {
     component.listaEmergencias = [
@@ -252,7 +254,7 @@ describe('AdminEmergenciasPage', () => {
     expect(component.obtenerEmergenciasFiltradas().length).toBe(3);
   });
 
-  it('debe filtrar reportes derivados según rol', () => {
+  it('debe filtrar reportes derivados segÃºn rol', () => {
     component.listaEmergencias = [
       {
         id: 1,
@@ -316,7 +318,7 @@ describe('AdminEmergenciasPage', () => {
     expect(alertSpy).toHaveBeenCalled();
   });
 
-  it('debe impedir publicar alerta vacía', () => {
+  it('debe impedir publicar alerta vacÃ­a', () => {
     const alertSpy = spyOn(window, 'alert');
 
     component.mensajeAlerta = '';
@@ -383,7 +385,7 @@ describe('AdminEmergenciasPage', () => {
     expect(alertSpy).toHaveBeenCalled();
   });
 
-  it('debe cerrar sesión', () => {
+  it('debe cerrar sesiÃ³n', () => {
     localStorage.setItem('rol_usuario', 'admin');
     localStorage.setItem('nombre_usuario', 'Genesis');
 

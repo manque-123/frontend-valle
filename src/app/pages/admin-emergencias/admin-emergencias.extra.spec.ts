@@ -97,7 +97,7 @@ describe('AdminEmergenciasPage extra cobertura', () => {
     ];
   });
 
-  it('debe crear la página extra', () => {
+  it('debe crear la pÃ¡gina extra', () => {
     expect(component).toBeTruthy();
   });
 
@@ -148,13 +148,13 @@ describe('AdminEmergenciasPage extra cobertura', () => {
     })).toBe('Independencia, Independencia');
 
     expect(component.formatearDireccion({
-      display_name: 'Sector A, Comuna B, Región C, Chile, Otro'
-    })).toBe('Sector A, Comuna B, Región C, Chile');
+      display_name: 'Sector A, Comuna B, RegiÃ³n C, Chile, Otro'
+    })).toBe('Sector A, Comuna B, RegiÃ³n C, Chile');
 
     expect(component.formatearDireccion({})).toBe('');
   });
 
-  it('debe cubrir clases, títulos y mensajes por rol', () => {
+  it('debe cubrir clases, tÃ­tulos y mensajes por rol', () => {
     expect(component.obtenerClaseEstado('PENDIENTE')).toBe('estado-pendiente');
     expect(component.obtenerClaseEstado('EN PROCESO')).toBe('estado-proceso');
     expect(component.obtenerClaseEstado('RESUELTO')).toBe('estado-resuelto');
@@ -346,26 +346,30 @@ describe('AdminEmergenciasPage extra cobertura', () => {
   });
 
   it('debe eliminar reporte local', () => {
-    const local = { ...reporte, _id: 'local-delete' };
+  const local = {
+    ...reporte,
+    id: undefined,
+    _id: 'local-delete'
+  };
 
-    component.listaEmergencias = [local];
-    component.misReportes = [local];
-    component.guardarReportesLocales([local]);
+  component.listaEmergencias = [local];
+  component.misReportes = [local];
+  component.guardarReportesLocales([local]);
 
-    component.eliminarReporte(local);
+  component.eliminarReporte(local);
 
-    expect(component.listaEmergencias.length).toBe(0);
-    expect(component.misReportes.length).toBe(0);
-  });
+  expect(component.listaEmergencias.length).toBe(0);
+  expect(component.misReportes.length).toBe(0);
+});
 
-  it('debe cerrar sesión sin recargar página', () => {
+  it('debe cerrar sesiÃ³n sin recargar pÃ¡gina', () => {
     component.cerrarSesion();
 
     expect(localStorage.getItem('rol_usuario')).toBeNull();
     expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/login');
   });
 
-  it('debe iniciar GPS automático sin ejecutar GPS real', fakeAsync(() => {
+  it('debe iniciar GPS automÃ¡tico sin ejecutar GPS real', fakeAsync(() => {
     const spyGps = spyOn(component, 'obtenerUbicacionReal').and.returnValue(Promise.resolve());
 
     component.gpsYaSolicitado = false;
@@ -377,7 +381,7 @@ describe('AdminEmergenciasPage extra cobertura', () => {
     expect(spyGps).toHaveBeenCalled();
   }));
 
-  it('debe obtener ubicación real con permiso concedido', async () => {
+  it('debe obtener ubicaciÃ³n real con permiso concedido', async () => {
     spyOn(Geolocation, 'checkPermissions').and.returnValue(Promise.resolve({ location: 'granted' } as any));
     spyOn(Geolocation, 'getCurrentPosition').and.returnValue(Promise.resolve({
       coords: {
@@ -424,28 +428,45 @@ describe('AdminEmergenciasPage extra cobertura', () => {
     expect(component).toBeTruthy();
   });
 
-  it('debe enviar nuevo reporte local y guardar respaldo', async () => {
-    spyOn(window, 'fetch').and.returnValue(Promise.resolve({
-      ok: true,
-      json: () => Promise.resolve({})
-    } as Response));
+  it('debe enviar nuevo reporte al servidor', async () => {
+  const servicio = (component as any).servicio;
 
-    component.nombreUsuario = 'Genesis';
-    component.tipoEmergencia = 'Incendio';
-    component.gravedadEmergencia = 'Alta';
-    component.descripcionEmergencia = 'Fuego visible';
-    component.ubicacionEmergencia = 'Calle real 123';
-    component.latitud = -33.45;
-    component.longitud = -70.66;
+  if (servicio.postEmergencia.and) {
+    servicio.postEmergencia.and.returnValue({
+      subscribe: (handlers: any) => {
+        handlers.next({ id: 50 });
+        return { unsubscribe: () => {} };
+      }
+    });
+  } else {
+    spyOn(servicio, 'postEmergencia').and.returnValue({
+      subscribe: (handlers: any) => {
+        handlers.next({ id: 50 });
+        return { unsubscribe: () => {} };
+      }
+    } as any);
+  }
 
-    await component.enviarNuevoReporte();
+  spyOn(component, 'cargarTodasLasEmergencias').and.stub();
+  spyOn(component, 'cargarMisReportes').and.stub();
 
-    expect(component.descripcionEmergencia).toBe('');
-    expect(component.verFormulario).toBeFalse();
-    expect(component.obtenerReportesLocales().length).toBeGreaterThan(0);
-  });
+  component.nombreUsuario = 'Genesis';
+  component.tipoEmergencia = 'Incendio';
+  component.gravedadEmergencia = 'Alta';
+  component.descripcionEmergencia = 'Fuego visible';
+  component.ubicacionEmergencia = 'Calle real 123';
+  component.latitud = -33.45;
+  component.longitud = -70.66;
 
-  it('debe impedir envío de reporte sin descripción o sin dirección', async () => {
+  await component.enviarNuevoReporte();
+
+  expect(servicio.postEmergencia).toHaveBeenCalled();
+  expect(component.descripcionEmergencia).toBe('');
+  expect(component.verFormulario).toBeFalse();
+  expect(component.obtenerReportesLocales().length).toBe(0);
+});
+
+  it('debe impedir envÃ­o de reporte sin descripciÃ³n o sin direcciÃ³n', async () => {
     component.descripcionEmergencia = '';
     await component.enviarNuevoReporte();
 
@@ -456,7 +477,7 @@ describe('AdminEmergenciasPage extra cobertura', () => {
     expect(window.alert).toHaveBeenCalled();
   });
 
-  it('debe cubrir métodos públicos adicionales sin romper navegación', () => {
+  it('debe cubrir mÃ©todos pÃºblicos adicionales sin romper navegaciÃ³n', () => {
     const pagina: any = component;
 
     const reporteExtra: any = {
