@@ -84,7 +84,7 @@ if (indiceExistente >= 0) {
 
 localStorage.setItem('usuarios_registrados', JSON.stringify(usuariosGuardados));
 
-alert('Administrador registrado con ÃƒÂ©xito. Ahora inicia sesiÃƒÂ³n.');
+alert('\u00a1Administrador registrado con \u00e9xito!');
 
 this.rutAdmin = '';
 this.usuarioAdmin = '';

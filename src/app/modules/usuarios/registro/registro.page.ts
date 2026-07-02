@@ -49,7 +49,7 @@ export class RegistroPage implements OnInit {
     });
     localStorage.setItem('usuarios_registrados', JSON.stringify(usuariosGuardados));
 
-    alert(' Ã‚Â¡Administrador registrado con ÃƒÂ©xito!');
+    alert('\u00a1Administrador registrado con \u00e9xito!');
     window.location.href = '#/login';
   }
 

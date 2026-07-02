@@ -54,7 +54,7 @@ export class EmergenciasPage implements OnInit {
     }
 
     this.ciudadanoId = idGuardado;
-    console.log('ID Ãšnico del Ciudadano:', this.ciudadanoId);
+    console.log('ID ÃƒÅ¡nico del Ciudadano:', this.ciudadanoId);
   }
 
   iniciarMapa() {
@@ -85,7 +85,7 @@ export class EmergenciasPage implements OnInit {
         const solicitud = await Geolocation.requestPermissions();
 
         if (solicitud.location !== 'granted') {
-          alert('Debes permitir el GPS para usar la ubicación.');
+          alert('Debes permitir el GPS para usar la ubicaciÃ³n.');
           this.cargandoUbicacion = false;
           return;
         }
@@ -114,7 +114,7 @@ export class EmergenciasPage implements OnInit {
 
     } catch (error) {
       console.error('Error GPS:', error);
-      alert('No se pudo obtener la ubicación. Revisa permisos y GPS.');
+      alert('No se pudo obtener la ubicaciÃ³n. Revisa permisos y GPS.');
     } finally {
       this.cargandoUbicacion = false;
     }
@@ -135,7 +135,7 @@ export class EmergenciasPage implements OnInit {
       fillOpacity: 0.9
     })
       .addTo(this.mapa)
-      .bindPopup('Tu ubicación actual')
+      .bindPopup('Tu ubicaciÃ³n actual')
       .openPopup();
   }
 
@@ -145,12 +145,12 @@ export class EmergenciasPage implements OnInit {
   const respuesta = await fetch(url);
 
   if (!respuesta.ok) {
-    throw new Error('No se pudo obtener la dirección');
+    throw new Error('No se pudo obtener la direcciÃ³n');
   }
 
   const data = await respuesta.json();
 
-  return data.display_name || 'Dirección no encontrada';
+  return data.display_name || 'DirecciÃ³n no encontrada';
 }
 
   cargarEmergencias() {
@@ -164,7 +164,7 @@ export class EmergenciasPage implements OnInit {
 
   enviarEmergencia() {
     if (!this.nueva.tipo || !this.nueva.descripcion || !this.nueva.ubicacion) {
-      alert('Por favor, complete la descripción y espere la ubicación.');
+      alert('Por favor, complete la descripciÃ³n y espere la ubicaciÃ³n.');
       return;
     }
 
@@ -180,7 +180,7 @@ export class EmergenciasPage implements OnInit {
 
     this.servicio.postEmergencia(objetoMultiformato).subscribe({
       next: () => {
-        alert('¡Emergencia reportada con éxito!');
+        alert('Reporte enviado.');
         this.cargarEmergencias();
 
         this.nueva = {

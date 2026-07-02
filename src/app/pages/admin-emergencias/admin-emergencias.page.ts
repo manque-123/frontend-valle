@@ -401,9 +401,16 @@ async enviarNuevoReporte() {
 
   const reporteServidor: any = {
     tipo: this.tipoEmergencia,
+    gravedad: this.gravedadEmergencia,
     descripcion: this.descripcionEmergencia.trim(),
+    evidenciaFoto: this.evidenciaFoto,
     ubicacion: this.ubicacionEmergencia,
-    estado: 'PENDIENTE'
+    latitud: this.latitud,
+    longitud: this.longitud,
+    estado: 'PENDIENTE',
+    ciudadano: this.nombreUsuario || 'Ciudadano',
+    responsable: 'Pendiente',
+    fecha: new Date().toISOString()
   };
 
   this.servicio.postEmergencia(reporteServidor).subscribe({
@@ -418,7 +425,7 @@ async enviarNuevoReporte() {
       this.cargarTodasLasEmergencias();
       this.cargarMisReportes();
 
-      alert('Reporte guardado correctamente en el servidor.');
+      alert('Reporte enviado.');
     },
     error: (err) => {
       console.error('Error enviando reporte al servidor:', err);
